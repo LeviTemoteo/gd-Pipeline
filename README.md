@@ -1,6 +1,6 @@
 # gd-Pipeline
 
-A Python data pipeline that collects telemetry from Geode mods (Death Tracker and Playtime Tracker), stores it in a SQLite database, and synchronizes it with Google Sheets.
+A Python data pipeline that collects telemetry from Geometry Dash mods (Death Tracker and Playtime Tracker), stores it in a SQLite database, and synchronizes it with Google Sheets.
 
 ## About
 
