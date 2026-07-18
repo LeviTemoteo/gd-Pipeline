@@ -81,7 +81,7 @@ E --> DB
 DB --> G
 ```
 
-For more details, see **architecture.md**.
+For more details, see **documentation/architecture.md**.
 
 ## Technologies
 
