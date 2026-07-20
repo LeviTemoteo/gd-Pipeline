@@ -1,3 +1,7 @@
-# variáveis de ambiente
-.env
 gd-Pipeline\data
+gd-Pipeline\config
+.env
+.db
+.sqlite
+.sqlite3
+__pycache__
