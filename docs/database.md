@@ -21,6 +21,8 @@ INTEGER difficulty
 
 INTEGER attempts
 
+INTEGER tracked_attempts
+
 INTEGER current_best
 
 INTEGER worst_fail
@@ -43,7 +45,8 @@ The `levels` table stores the latest known state of every tracked level and each
 | level_id        | TEXT    | Original Geometry Dash level ID|
 | level_name      | TEXT    | Name of the level |
 | difficulty      | INTEGER | Difficulty value provided by Death Tracker |
-| attempts        | INTEGER | Number of attempts |
+| attempts        | INTEGER | Official attempt count reported by Geometry Dash |
+| tracked_attempts| INTEGER | Attempt count reported by Death Tracker |
 | current_best    | INTEGER | Highest completion percentage |
 | worst_fail      | INTEGER | Highest percentage reached before completing the level |
 | playtime        | INTEGER | Total playtime in seconds |
@@ -55,6 +58,7 @@ The `levels` table stores the latest known state of every tracked level and each
 - `canonical_id` must be unique.
 - `playtime` cannot be negative.
 - `attempts` cannot be negative.
+- `tracked_attempts` cannot be negative.
 - `current_best` must be between 0 and 100.
 - `worst_fail` must be between 0 and 99.
 - `completion_date` may be NULL.
