@@ -11,6 +11,7 @@ def initialize_database():
     level_name TEXT NOT NULL,
     difficulty INTEGER NOT NULL,
     attempts INTEGER NOT NULL CHECK (attempts >= 0),
+    tracked_attempts INTEGER NOT NULL CHECK (attempts >= 0),
     current_best INTEGER NOT NULL CHECK (current_best BETWEEN 0 AND 100),
     worst_fail INTEGER NOT NULL CHECK (worst_fail BETWEEN 0 AND 99),
     playtime INTEGER NOT NULL CHECK (playtime >= 0),
