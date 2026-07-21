@@ -6,7 +6,8 @@ import sqlite3
 class LevelRepository:
     def __init__(self):
         self.dataBasePath = dataBasePath
-        self.dataBase = None
+        self.dataBase = None # connection with DB
+        # dataBaseCursor == Cursor
 
     def __enter__(self):
         self.dataBase = sqlite3.connect(self.dataBasePath) 
@@ -16,7 +17,6 @@ class LevelRepository:
         if self.dataBase: # Avoid some errors
             self.dataBase.close()
         
-
     def insert(self, level: Level) -> None:
         '''Insert a level in DB'''
 
@@ -39,8 +39,7 @@ class LevelRepository:
 
         dataBaseCursor.execute(sql, items)
         self.dataBase.commit()
-        dataBaseCursor.close()
-            
+        dataBaseCursor.close()   
 
     def update(self, level: Level) -> None:
         '''Update the level in DB'''
@@ -59,7 +58,6 @@ class LevelRepository:
             completed = ?,
             completion_date = ?
         where canonical_id = ?
-        values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         '''
 
         params = (
@@ -81,28 +79,29 @@ class LevelRepository:
         dataBaseCursor.close()
 
     def save(self, level: Level) -> None:
-        dataBaseCursor = self.dataBase.cursor()
-        dataBaseCursor.close()
-
-    def find(self, level: Level) -> Level | None:
+        '''Save a Level in DB, its choose between update or insert'''
+        if self.exists(level.canonical_id):
+            self.update(level)
+        else:
+            self.insert(level)
+            
+    def find(self, canonical_id: str) -> Level | None:
         '''Find a level by its canonical id.'''
         dataBaseCursor = self.dataBase.cursor()
 
-        sql = '''select * from levels,
+        sql = '''select * from levels
         where canonical_id = ?
-        values = (?)
         '''
-        dataBaseCursor.execute(sql, list(level.canonical_id))
+        dataBaseCursor.execute(sql, (canonical_id,))
         newLevel = dataBaseCursor.fetchone()
         dataBaseCursor.close()
-        return newLevel
+        if newLevel is None:
+            return None
+        return Level(*newLevel)
 
-        
-
-    def exits(self, level: Level) -> bool:
-        dataBaseCursor = self.dataBase.cursor()
-        dataBaseCursor.close()
-
+    def exists(self, canonical_id: str) -> bool:
+        return self.find(canonical_id) is not None
+       
     def get_all(self) -> list[Level]:
         '''Return a list of all items with level class'''
 
@@ -114,11 +113,25 @@ class LevelRepository:
         levels_list = []
 
         for row in data:
-            levels_list.append(*row) # Unpacking the DB
+            levels_list.append(Level(*row)) # Unpacking the DB
         dataBaseCursor.close()
 
         return levels_list
 
     def clear(self) -> None:
+        '''Clean the entire table'''
         dataBaseCursor = self.dataBase.cursor()
+        sql = '''delete from levels'''
+        dataBaseCursor.execute(sql)
+        self.dataBase.commit()
+        dataBaseCursor.close()
+
+    def delete(self, canonical_id: str) -> None:
+
+        dataBaseCursor = self.dataBase.cursor()
+        sql = '''delete from levels
+        where canonical_id = ?
+        '''
+        dataBaseCursor.execute(sql, (canonical_id,))
+        self.dataBase.commit()
         dataBaseCursor.close()
