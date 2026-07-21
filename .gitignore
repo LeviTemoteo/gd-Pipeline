@@ -1,7 +1,10 @@
-gd-Pipeline\data
-gd-Pipeline\config
-.env
-.db
-.sqlite
-.sqlite3
-__pycache__
+gd-Pipeline/data/
+gd-Pipeline/config/
+*.env
+*.db
+*.sqlite
+*.sqlite3
+__pycache__/
+*.sql
+*.session.sql
+

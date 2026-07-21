@@ -5,7 +5,7 @@ def initialize_database():
     dataBase = sqlite3.connect(dataBasePath)
     dataBaseCursor = dataBase.cursor()
     
-    sql = '''CREATE TABLE IF NOT EXISTS myGdDataBase
+    sql = '''CREATE TABLE IF NOT EXISTS levels
     (canonical_id TEXT PRIMARY KEY,
     level_id TEXT NOT NULL, 
     level_name TEXT NOT NULL,
