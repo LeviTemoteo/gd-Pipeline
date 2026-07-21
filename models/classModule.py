@@ -1,9 +1,10 @@
 '''Module with level class'''
 from dataclasses import dataclass
+from datetime import date
     
 
 @dataclass
-class level:
+class Level:
     canonical_id: str
     level_id: str
     level_name: str
