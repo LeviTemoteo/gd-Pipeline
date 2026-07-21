@@ -1,5 +1,5 @@
-gd-Pipeline/data/
-gd-Pipeline/config/
+data/
+config/
 *.env
 *.db
 *.sqlite
