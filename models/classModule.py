@@ -10,6 +10,7 @@ class Level:
     level_name: str
     difficulty: int
     attempts: int
+    tracked_attempts: int
     current_best: int
     worst_fail: int
     playtime: int
