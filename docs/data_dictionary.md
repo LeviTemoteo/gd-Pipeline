@@ -112,13 +112,14 @@ This encoding is defined by Death Tracker and is not interpreted by gd-Pipeline.
 
 | Property | Value |
 |----------|-------|
-| Source | Death Tracker |
+| Source | Geometry Dash |
 | Type | INTEGER |
 | Nullable | No |
 
 ### Description
 
-Total number of attempts recorded for the level.
+Official attempt count reported by Geometry Dash.
+This value is extracted from the Geometry Dash metadata and includes every attempt recognized by the game.
 
 If linked levels are configured in Death Tracker, attempts from every linked level are included in the total.
 
@@ -132,6 +133,33 @@ If linked levels are configured in Death Tracker, attempts from every linked lev
 ### Notes
 
 gd-Pipeline will **NOT** link levels automatically, anyone using this program will have to link levels manually.
+
+## tracked_attempts
+
+| Property | Value |
+|----------|-------|
+| Source | Death Tracker |
+| Type | INTEGER |
+| Nullable | No |
+
+### Description
+
+Attempt count reported by Death Tracker.
+
+Unlike the official Geometry Dash attempt counter, this value follows Death Tracker's own tracking rules.
+
+### Example
+```
+4235
+30065
+25
+```
+
+### Notes
+
+The value may differ from `attempts` because Geometry Dash and Death Tracker do not count attempts using the same criteria.
+
+gd-Pipeline stores both values exactly as reported by their respective sources and does not attempt to reconcile the difference.
 
 ## current_best
 
