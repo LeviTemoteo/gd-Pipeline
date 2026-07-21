@@ -118,7 +118,7 @@ Responsibilities:
 - Canonical level identifier
 - Original Geometry Dash level identifier
 - Level name
-- Attempts
+- Tracked attempts
 - Current Best
 - Worst Fail
 - Difficulty
@@ -234,7 +234,8 @@ Each mod is responsible for a different set of information.
 | Level ID | Death Tracker |
 | Level Name | Death Tracker |
 | Difficulty | Death Tracker |
-| Attempts | Death Tracker |
+| Attempts | Geometry Dash Metadata |
+| Tracked Attempts | Death Tracker |
 | Current Best | Death Tracker |
 | Worst Fail | Death Tracker |
 | Playtime | Playtime Tracker |
