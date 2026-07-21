@@ -7,4 +7,5 @@ gd-Pipeline/config/
 __pycache__/
 *.sql
 *.session.sql
-
+*.code
+*.code-workspace
