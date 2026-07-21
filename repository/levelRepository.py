@@ -6,7 +6,8 @@ import sqlite3
 class LevelRepository:
     def __init__(self):
         self.dataBasePath = dataBasePath
-        self.dataBase = None # connection with DB
+        self.dataBase = None
+        # dataBase == connection with sqlite DB
         # dataBaseCursor == Cursor
 
     def __enter__(self):
@@ -86,7 +87,7 @@ class LevelRepository:
             self.insert(level)
             
     def find(self, canonical_id: str) -> Level | None:
-        '''Find a level by its canonical id.'''
+        '''Find a level by its canonical id'''
         dataBaseCursor = self.dataBase.cursor()
 
         sql = '''select * from levels
@@ -95,11 +96,13 @@ class LevelRepository:
         dataBaseCursor.execute(sql, (canonical_id,))
         newLevel = dataBaseCursor.fetchone()
         dataBaseCursor.close()
+
         if newLevel is None:
             return None
         return Level(*newLevel)
 
     def exists(self, canonical_id: str) -> bool:
+        '''See if the level exists in DB'''
         return self.find(canonical_id) is not None
        
     def get_all(self) -> list[Level]:
@@ -127,6 +130,7 @@ class LevelRepository:
         dataBaseCursor.close()
 
     def delete(self, canonical_id: str) -> None:
+        '''Delete one level in DB'''
 
         dataBaseCursor = self.dataBase.cursor()
         sql = '''delete from levels
