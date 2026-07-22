@@ -52,6 +52,31 @@ Unlike `canonical_id`, this value represents the original identifier assigned by
 13-editor
 5-local
 ```
+## master_level_id
+
+| Property | Value |
+|----------|-------|
+| Source | gd-Pipeline |
+| Type | TEXT |
+| Nullable | Yes |
+
+### Description
+
+Representative Geometry Dash level identifier used to group linked levels.
+
+When multiple levels are linked together, every level in the group shares the same `master_level_id`. The representative level is selected as the linked online or local level with the smallest Geometry Dash `level_id`.
+
+If the level does not belong to a linked group, this field is `NULL`.
+
+### Example
+
+```
+2241592
+3979721
+```
+### Notes
+
+This field is used only during synchronization and SQLite continues storing every linked level as an independent record.
 
 ## level_name
 
@@ -121,7 +146,7 @@ This encoding is defined by Death Tracker and is not interpreted by gd-Pipeline.
 Official attempt count reported by Geometry Dash.
 This value is extracted from the Geometry Dash metadata and includes every attempt recognized by the game.
 
-If linked levels are configured in Death Tracker, attempts from every linked level are included in the total.
+If linked levels are configured, gd-Pipeline aggregates the attempts of every linked level sharing the same master_level_id during synchronization.
 
 ### Example
 
@@ -147,6 +172,7 @@ gd-Pipeline will **NOT** link levels automatically, anyone using this program wi
 Attempt count reported by Death Tracker.
 
 Unlike the official Geometry Dash attempt counter, this value follows Death Tracker's own tracking rules.
+When linked levels are configured, statistics are aggregated using master_level_id during synchronization.
 
 ### Example
 ```
@@ -172,8 +198,9 @@ gd-Pipeline stores both values exactly as reported by their respective sources a
 ### Description
 
 Highest completion percentage achieved on the level.
+The value ranges from 0 to 100 and a value of 100 indicates that the level has been completed.
 
-The value ranges from 0 to 100. A value of 100 indicates that the level has been completed.
+Only runs starting at 0% are considered, so Runs beginning from Start Positions never modify this value.
 
 ### Example
 
@@ -181,6 +208,9 @@ The value ranges from 0 to 100. A value of 100 indicates that the level has been
 94
 50
 ```
+### Notes
+
+When linked levels are synchronized, the exported value corresponds to the highest `current_best` among every level in the linked group. Will only consider runs from 0%.
 
 ## worst_fail
 
@@ -192,9 +222,13 @@ The value ranges from 0 to 100. A value of 100 indicates that the level has been
 
 ### Description
 
-Highest completion percentage reached before the successful completion attempt.
+Represents the player's highest recorded progress before completion.
 
-The value ranges from 0 to 99.
+For incomplete levels, this value is equal to `current_best`.
+
+After the level has been completed, it corresponds to the last personal best recorded before reaching 100%.
+If the player completed the level without recording any previous personal best, the value is `0`, representing a "fluke" from 0%.
+
 
 ### Example
 
@@ -204,7 +238,15 @@ The value ranges from 0 to 99.
 
 ### Notes
 
-This value remains unchanged after the level has been completed.
+The value is computed by gd-Pipeline using Death Tracker's `newBests` history.
+
+When linked levels are synchronized, the exported value corresponds to the highest `worst_fail` among every level in the linked group.
+The value ranges from 0 to 99.
+
+### Notes
+
+This value is computed by gd-Pipeline using Death Tracker's `currentBest` and `newBests`.
+Runs starting from Start Positions are ignored.
 
 ## playtime
 
@@ -220,6 +262,7 @@ This value remains unchanged after the level has been completed.
 Total time spent playing the level.
 
 The value is calculated by summing the duration of every recorded session provided by Playtime Tracker.
+Linked levels share their playtime through the same aggregation process used for attempts.
 
 ### Example
 
@@ -243,7 +286,10 @@ Although Geometry Dash players commonly express playtime in hours, gd-Pipeline s
 
 Indicates whether the player has completed the level.
 
+For linked levels, the entire linked group is considered completed as soon as any level in the group reaches 100%.
 Once this value becomes `TRUE`, the pipeline no longer updates the record.
+
+Only runs starting at 0% may change this value, so completions obtained exclusively from Start Position runs are ignored.
 
 ## completion_date
 
@@ -255,9 +301,10 @@ Once this value becomes `TRUE`, the pipeline no longer updates the record.
 
 ### Description
 
-Date on which the player completed the level for the first time.
+Date on which the player completed the level for the first time. For linked levels, the earliest completion date within the linked group is used.
+The value remains `NULL` until the level is completed. 
 
-The value remains `NULL` until the level is completed.
+Only valid 0% completions generate a completion date.
 
 
 ### Example
