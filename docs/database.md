@@ -75,7 +75,7 @@ The `levels` table stores the latest known state of every tracked level and each
 | PRIMARY KEY | canonical_id |
 | idx_master_level_id | master_level_id |
 
-## Progess Statistics
+## Progress Statistics
 
 Not every recorded run represents valid progression.
 
