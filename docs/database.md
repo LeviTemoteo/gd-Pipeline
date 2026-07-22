@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SQLite database stores the current state of every tracked Geometry Dash level. Data collected from Death Tracker and Playtime Tracker is transformed into a unified schema before being stored, allowing the pipeline to work with a single and consistent representation of each level. Google Sheets is synchronized directly from the database, making SQLite the central storage layer of the application.
+The SQLite database stores the current state of every tracked Geometry Dash level variant. Data collected from Death Tracker and Playtime Tracker is transformed into a unified schema before being stored, allowing the pipeline to work with a single and consistent representation of each level. Google Sheets is synchronized from the SQLite database after linked-level aggregation, making SQLite the central storage layer of the application.
 
 ## Database Model
 
@@ -14,6 +14,8 @@ LEVELS {
 TEXT canonical_id PK
 
 TEXT level_id
+
+TEXT master_level_id
 
 TEXT level_name
 
@@ -43,6 +45,7 @@ The `levels` table stores the latest known state of every tracked level and each
 | --------------- | ------- | ------------------------------------------|
 | canonical_id    | TEXT    | Primary key used internally by gd-Pipeline|
 | level_id        | TEXT    | Original Geometry Dash level ID|
+| master_level_id | TEXT    | Representative Geometry Dash level ID used for linked-level aggregation. NULL for standalone levels. |
 | level_name      | TEXT    | Name of the level |
 | difficulty      | INTEGER | Difficulty value provided by Death Tracker |
 | attempts        | INTEGER | Official attempt count reported by Geometry Dash |
@@ -63,20 +66,37 @@ The `levels` table stores the latest known state of every tracked level and each
 - `worst_fail` must be between 0 and 99.
 - `completion_date` may be NULL.
 - `completed` defaults to FALSE.
+- `master_level_id` may be NULL.
 
 ## Indexes
 
 | Name | Columns |
 |------|---------|
 | PRIMARY KEY | canonical_id |
+| idx_master_level_id | master_level_id |
 
-Very simple, isn't?
+## Progess Statistics
+
+Not every recorded run represents valid progression.
+
+Only runs beginning at 0% contribute to:
+
+- current_best
+- worst_fail
+- completed
+- completion_date
+
+Runs beginning from Start Positions still contribute to:
+
+- attempts
+- tracked_attempts
+- playtime
 
 ## Design Decisions
 
 ### One Row per Level
 
-Each level is represented by a single row in the database, then the pipeline continuously updates the record while the level is in progress. Once the level is completed, the row becomes immutable and is no longer modified.
+Each level is represented by a single row in the database, then the pipeline continuously updates the record while the level is in progress. Once the level is completed, the row becomes immutable and is no longer modified. Linked levels remain stored as independent rows, so their statistics are aggregated later using master_level_id.
 This approach keeps the database synchronized with the player's current progress while avoiding unnecessary historical records.
 
 ### Canonical Identifier
@@ -101,3 +121,20 @@ For this reason, both `canonical_id` and `level_id` are stored as `TEXT` instead
 Playtime is stored as the total number of seconds spent on a level instead of a formatted duration.
 
 Although Geometry Dash players commonly express playtime in hours, storing the raw value preserves full precision and avoids rounding errors. Human-readable formats, such as hours or minutes, are generated only when displaying the data.
+
+
+### Linked Progression
+
+SQLite stores each linked level as an independent record. During synchronization, gd-Pipeline aggregates every record sharing the same `master_level_id`.
+
+The aggregated record is computed using the following rules:
+
+| Field | Aggregation |
+|--------|-------------|
+| attempts | Sum |
+| tracked_attempts | Sum |
+| playtime | Sum |
+| current_best | Maximum |
+| worst_fail | Maximum |
+| completed | Any completed level |
+| completion_date | Earliest completion date |
