@@ -156,11 +156,11 @@ Responsible for combining information from both mods into a single data model. D
 
 Data Processing is applied here, such as:
 
-- Resolve linked levels
-- Assign master_level_id
-- Merge linked statistics
+- Resolve linked level groups
+- Aggregate linked statistics
+- Compute `worst_fail`
+- Determine completion state
 - Calculate total playtime
-- Ignore completed levels
 
 ---
 
@@ -214,6 +214,9 @@ The representative level is selected as the linked online or local level with th
 
 Therefore, the `master_level_id` is always equal to the smallest `level_id` within the linked-level group. This strategy provides a deterministic identifier for linked-level groups without requiring additional metadata beyond what Death Tracker already provides.
 
+Statistics are never merged inside SQLite, each linked level remains stored as an independent record.
+Aggregation is performed only during synchronization, where every level sharing the same `master_level_id` is treated as a single logical progression.
+
 Statistics synchronized to Google Sheets are aggregated using `master_level_id`.
 
 ### Example
@@ -247,8 +250,7 @@ Google Sheets is synchronized from SQLite and should never be treated as the pri
 
 ## Completed Levels
 
-A level is continuously updated until it is completed, after that its statistics become immutable.
-
+A linked-level group is considered completed as soon as any level in the group reaches 100%. After that, the aggregated record becomes immutable and will no longer receive updates.
 This prevents historical data from being accidentally overwritten and reflects the project's goal of tracking the completion state of each level.
 
 ---
