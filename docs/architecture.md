@@ -67,7 +67,9 @@ C[Read Death Tracker]
 
 D[Read Playtime Tracker]
 
-E[Merge]
+E[Linked Levels]
+
+F[Merge]
 
 DB[(Update SQLite)]
 
@@ -78,7 +80,8 @@ B --> C
 B --> D
 C --> E
 D --> E
-E --> DB
+E --> F
+F --> DB
 DB --> G
 ```
 
@@ -149,11 +152,13 @@ No Data Processing is applied during this stage.
 
 ## Transform
 
-Responsible for combining information from both mods into a single data model.
+Responsible for combining information from both mods into a single data model. During this stage, linked levels are resolved into logical groups and assigned a common ``master_level_id``
 
 Data Processing is applied here, such as:
 
-- Merge linked levels
+- Resolve linked levels
+- Assign master_level_id
+- Merge linked statistics
 - Calculate total playtime
 - Ignore completed levels
 
@@ -177,25 +182,49 @@ All updates are synchronized from the SQLite database, but no data is written di
 
 # Canonical Identifier
 
-Each level stored by gd-Pipeline contains two identifiers.
+Each level stored by gd-Pipeline contains three identifiers.
 
-| Identifier | Description |
-|------------|-------------|
-| canonical_id | Unique identifier used internally by gd-Pipeline |
-| level_id | Original Geometry Dash level ID |
+| Identifier      | Description |
+| --------------- | ------------|
+| canonical_id    | Unique identifier of a tracked JSON file|
+| level_id        | Original Geometry Dash level ID|
+| master_level_id | Representative Geometry Dash level identifier for a linked-level group |
+
 
 The canonical identifier is derived from the Death Tracker filename.
+Every linked level in the same group shares the same ``master_level_id``.
 
 Examples:
 
-| Death Tracker filename | canonical_id | level_id |
-|-----------------------|--------------|----------|
-| 144807542 | 144807542 | 144807542 |
-| 144807542-daily | 144807542-daily | 144807542 |
+| Death Tracker filename | canonical_id | level_id | master_level_id |
+|-----------------------|--------------|----------|------------------|
+| 144807542 | 144807542 | 144807542 | 144807542 |
+| 144807542-daily | 144807542-daily | 144807542 | 144807542 |
 
 This prevents collisions between Original, Daily, Weekly, Event and Gauntlet variants while preserving the original Geometry Dash id.
 
 ---
+# Linked Levels
+
+Death Tracker stores linked levels as a list inside the metadata JSON of each level. If the user don't link any level, the list will be empty.
+
+gd-Pipeline assigns the same `master_level_id` to every linked level, allowing statistics to be aggregated while preserving each original record.
+
+The representative level is selected as the linked online or local level with the smallest Geometry Dash `level_id`.
+
+Therefore, the `master_level_id` is always equal to the smallest `level_id` within the linked-level group. This strategy provides a deterministic identifier for linked-level groups without requiring additional metadata beyond what Death Tracker already provides.
+
+Statistics synchronized to Google Sheets are aggregated using `master_level_id`.
+
+### Example
+
+| level_id | master_level_id | level_name |
+|----------|----------------:|------------|
+| 2241592  | 2241592 | Necropolis |
+| 91735946 | 2241592 | Necropolis StartPos |
+| 6839035  | 2241592 | Necropolis Copyable |
+
+
 
 # Design Decisions
 
@@ -232,6 +261,7 @@ Each mod is responsible for a different set of information.
 |------|--------|
 | Canonical ID | Death Tracker |
 | Level ID | Death Tracker |
+| Master Level ID | Death Tracker |
 | Level Name | Death Tracker |
 | Difficulty | Death Tracker |
 | Attempts | Geometry Dash Metadata |
