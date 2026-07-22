@@ -25,6 +25,7 @@ class LevelRepository:
         sql = ''' 
         insert into levels (canonical_id,
         level_id,
+        master_level_id,
         level_name,
         difficulty,
         attempts,
@@ -34,7 +35,7 @@ class LevelRepository:
         playtime,
         completed,
         completion_date)
-        values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+        values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
         
         items = list(asdict(level).values())
 
@@ -49,6 +50,7 @@ class LevelRepository:
         update levels
         set 
             level_id = ?,
+            master_level_id = ?,
             level_name = ?,
             difficulty = ?,
             attempts = ?,
@@ -63,6 +65,7 @@ class LevelRepository:
 
         params = (
             level.level_id,
+            level.master_level_id,
             level.level_name,
             level.difficulty,
             level.attempts,
@@ -112,11 +115,8 @@ class LevelRepository:
         sql = '''select * from levels'''
         dataBaseCursor.execute(sql)
         data = dataBaseCursor.fetchall()
-        
-        levels_list = []
 
-        for row in data:
-            levels_list.append(Level(*row)) # Unpacking the DB
+        levels_list = [Level(*row) for row in data] # Unpacking the DB
         dataBaseCursor.close()
 
         return levels_list
@@ -139,3 +139,20 @@ class LevelRepository:
         dataBaseCursor.execute(sql, (canonical_id,))
         self.dataBase.commit()
         dataBaseCursor.close()
+
+    def find_linked_levels(self, master_level_id: str | None) -> list[Level]:
+        '''Return a list of levels with the same master id or None if don't find any'''
+
+        if master_level_id is None:
+            return []
+        
+        dataBaseCursor = self.dataBase.cursor()
+        sql = '''select * from levels
+        where master_level_id = ?'''
+        dataBaseCursor.execute(sql, (master_level_id,))
+        data = dataBaseCursor.fetchall()
+        dataBaseCursor.close()
+
+        linked_list = [Level(*row) for row in data]
+        return linked_list
+    

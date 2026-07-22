@@ -7,7 +7,8 @@ def initialize_database():
     
     sql = '''CREATE TABLE IF NOT EXISTS levels
     (canonical_id TEXT PRIMARY KEY,
-    level_id TEXT NOT NULL, 
+    level_id TEXT NOT NULL,
+    master_level_id TEXT NULL, 
     level_name TEXT NOT NULL,
     difficulty INTEGER NOT NULL,
     attempts INTEGER NOT NULL CHECK (attempts >= 0),
@@ -16,9 +17,14 @@ def initialize_database():
     worst_fail INTEGER NOT NULL CHECK (worst_fail BETWEEN 0 AND 99),
     playtime INTEGER NOT NULL CHECK (playtime >= 0),
     completed BOOLEAN NOT NULL DEFAULT FALSE, 
-    completion_date DATE)'''
-
+    completion_date DATE)
+    '''
     dataBaseCursor.execute(sql)
+
+    sql = '''CREATE INDEX IF NOT EXISTS idx_master_level_id 
+        ON levels (master_level_id)'''
+    dataBaseCursor.execute(sql)
+
     dataBase.commit()
     dataBaseCursor.close()
     dataBase.close()

@@ -7,6 +7,7 @@ from datetime import date
 class Level:
     canonical_id: str
     level_id: str
+    master_level_id: str
     level_name: str
     difficulty: int
     attempts: int
