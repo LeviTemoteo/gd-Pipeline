@@ -158,16 +158,30 @@ Data Processing is applied here, such as:
 
 - Resolve linked level groups
 - Aggregate linked statistics
-- Compute `worst_fail`
+- Compute progression statistics
 - Determine completion state
 - Calculate total playtime
+
+### Progress Rules
+Progression-related fields are computed only from runs beginning at 0%.
+Start Position runs are treated as practice runs and therefore never affect:
+
+- current_best
+- worst_fail
+- completed
+- completion_date
+
+However, they still contribute to:
+
+- attempts
+- tracked_attempts
+- playtime
 
 ---
 
 ## SQLite
 
 SQLite stores the latest state of every tracked level.
-
 It is the primary data store.
 
 ---
@@ -175,7 +189,6 @@ It is the primary data store.
 ## Google Sheets
 
 Google Sheets mirrors the SQLite database and it is used only for visualization and data sharing.
-
 All updates are synchronized from the SQLite database, but no data is written directly to Google Sheets.
 
 ---
@@ -253,6 +266,7 @@ Google Sheets is synchronized from SQLite and should never be treated as the pri
 A linked-level group is considered completed as soon as any level in the group reaches 100%. After that, the aggregated record becomes immutable and will no longer receive updates.
 This prevents historical data from being accidentally overwritten and reflects the project's goal of tracking the completion state of each level.
 
+
 ---
 
 ## Data Responsibility
@@ -263,13 +277,13 @@ Each mod is responsible for a different set of information.
 |------|--------|
 | Canonical ID | Death Tracker |
 | Level ID | Death Tracker |
-| Master Level ID | Death Tracker |
+| Master Level ID | Death Tracker + gd-Pipeline |
 | Level Name | Death Tracker |
 | Difficulty | Death Tracker |
 | Attempts | Geometry Dash Metadata |
 | Tracked Attempts | Death Tracker |
-| Current Best | Death Tracker |
-| Worst Fail | Death Tracker |
+| Current Best | Death Tracker + gd-Pipeline |
+| Worst Fail | Death Tracker + gd-Pipeline |
 | Playtime | Playtime Tracker |
 | Completion Status | gd-Pipeline |
 | Completion Date | gd-Pipeline |
