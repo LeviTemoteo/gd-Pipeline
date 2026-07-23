@@ -10,6 +10,5 @@ class DeathTrackerData:
     difficulty: int 
     attempts: int 
     tracked_attempts: int 
+    new_bests: list[int]
     current_best: int 
-    worst_fail: int 
-    
