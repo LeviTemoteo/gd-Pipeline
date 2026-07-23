@@ -10,6 +10,8 @@ class DeathParser:
             return load(file)
 
     def parse(self, levelDir: Path) -> DeathTrackerData:
+        # level dir is the path of the directory
+
         metadata_path = levelDir / "metadata"
         general_path = levelDir / "general.dt"
 
@@ -30,7 +32,7 @@ class DeathParser:
         )
 
     def _get_level_id(self, canonical_id: str) -> str:
-        
+
         """Get the level id using the canonical id and removing unecessary strings"""
         remove = ("-daily", "-gauntlet", "-event", "-weekly")
         level_id = canonical_id

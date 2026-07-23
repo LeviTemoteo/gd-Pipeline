@@ -19,6 +19,7 @@ class PlaytimeParser:
             level_id=Id_level,
             playtime=self._get_total_playtime(level_File),
         )
+    
     def _get_total_playtime(self, level_file: dict) -> int:
         # Calculates the sum of every session
 
