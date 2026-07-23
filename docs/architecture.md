@@ -152,14 +152,13 @@ No Data Processing is applied during this stage.
 
 ## Transform
 
-Responsible for combining information from both mods into a single data model. During this stage, linked levels are resolved into logical groups and assigned a common ``master_level_id``
+Responsible for combining information from both mods into a single `Level` object. 
+During this stage, data from Death Tracker and Playtime Tracker is merged and transformed into the application's internal model.
 
 Data Processing is applied here, such as:
 
 - Resolve linked level groups
-- Aggregate linked statistics
 - Compute progression statistics
-- Determine completion state
 - Calculate total playtime
 
 ### Progress Rules
@@ -176,6 +175,23 @@ However, they still contribute to:
 - attempts
 - tracked_attempts
 - playtime
+
+These rules are evaluated independently for each level before any group synchronization takes place.
+
+---
+
+## Persistence
+
+After transformation, the resulting `Level` is stored in SQLite.
+
+Once the record has been persisted, gd-Pipeline synchronizes the completion state across every level sharing the same `master_level_id`.
+
+Only completion-related fields are synchronized:
+
+- completed
+- completion_date
+
+All other fields remain independent and are only aggregated during synchronization with Google Sheets.
 
 ---
 
@@ -217,30 +233,49 @@ Examples:
 This prevents collisions between Original, Daily, Weekly, Event and Gauntlet variants while preserving the original Geometry Dash id.
 
 ---
-# Linked Levels
+## Linked Levels
 
-Death Tracker stores linked levels as a list inside the metadata JSON of each level. If the user don't link any level, the list will be empty.
+Death Tracker stores linked levels as a list inside the metadata JSON of each level. If the user does not link any level, the list remains empty.
 
-gd-Pipeline assigns the same `master_level_id` to every linked level, allowing statistics to be aggregated while preserving each original record.
-
-The representative level is selected as the linked online or local level with the smallest Geometry Dash `level_id`.
+gd-Pipeline assigns the same `master_level_id` to every linked level, allowing the application to identify levels that belong to the same logical progression while preserving each original record, then the representative level is selected as the linked online or local level with the smallest Geometry Dash `level_id`.
 
 Therefore, the `master_level_id` is always equal to the smallest `level_id` within the linked-level group. This strategy provides a deterministic identifier for linked-level groups without requiring additional metadata beyond what Death Tracker already provides.
 
-Statistics are never merged inside SQLite, each linked level remains stored as an independent record.
-Aggregation is performed only during synchronization, where every level sharing the same `master_level_id` is treated as a single logical progression.
+### Completion Synchronization
 
-Statistics synchronized to Google Sheets are aggregated using `master_level_id`.
+Each linked level is stored independently inside SQLite. After a level is persisted, gd-Pipeline synchronizes the completion state across **every record** sharing the same `master_level_id`.
+
+Fields that are synchronized:
+
+- completed
+- completion_date
+
+This guarantees that completing any linked level marks the entire logical progression as completed, while preserving the individual statistics of each record.
+
+## Statistics Aggregation
+
+Statistics are never merged inside SQLite.
+
+Instead, every linked level preserves its own history, including:
+
+- attempts
+- tracked_attempts
+- playtime
+- current_best
+- worst_fail
+
+Aggregation is performed only during synchronization with Google Sheets.
 
 ### Example
 
 | level_id | master_level_id | level_name |
-|----------|----------------:|------------|
-| 2241592  | 2241592 | Necropolis |
+|----------|-----------------|------------|
+| 2241592 | 2241592 | Necropolis |
 | 91735946 | 2241592 | Necropolis StartPos |
-| 6839035  | 2241592 | Necropolis Copyable |
+| 6839035 | 2241592 | Necropolis Copyable |
 
-
+### Notes
+At that stage, every record sharing the same `master_level_id` is treated as a single logical progression.
 
 # Design Decisions
 
