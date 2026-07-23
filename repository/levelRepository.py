@@ -1,4 +1,4 @@
-from models.classModule import Level
+from models.level import Level
 from config.paths import dataBasePath
 from dataclasses import asdict
 import sqlite3
