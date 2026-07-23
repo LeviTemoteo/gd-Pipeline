@@ -98,7 +98,7 @@ flowchart LR
 
 While the player has not completed the level, the pipeline keeps updating its statistics every time the player exits the level.
 
-Once the level has been completed, the record becomes immutable and will no longer receive updates.
+Once the level has been completed, its gameplay statistics become immutable. Only structural changes, such as updating the master_level_id, are allowed if group links change.
 
 ---
 
@@ -263,9 +263,8 @@ Google Sheets is synchronized from SQLite and should never be treated as the pri
 
 ## Completed Levels
 
-A linked-level group is considered completed as soon as any level in the group reaches 100%. After that, the aggregated record becomes immutable and will no longer receive updates.
+A linked-level group is considered completed as soon as any level in the group reaches 100%. After that, the aggregated record becomes immutable and will no longer receive updates, however, its master_level_id may still be updated if the user modifies linked levels inside Death Tracker.
 This prevents historical data from being accidentally overwritten and reflects the project's goal of tracking the completion state of each level.
-
 
 ---
 

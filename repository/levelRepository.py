@@ -1,6 +1,7 @@
 from models.level import Level
 from config.paths import dataBasePath
 from dataclasses import asdict
+from datetime import date
 import sqlite3
 
 class LevelRepository:
@@ -11,7 +12,7 @@ class LevelRepository:
         # dataBaseCursor == Cursor
 
     def __enter__(self):
-        self.dataBase = sqlite3.connect(self.dataBasePath) 
+        self.dataBase = sqlite3.connect(self.dataBasePath, detect_types=sqlite3.PARSE_DECLTYPES) # detects the date type
         return self
     
     def __exit__(self, exc_type, exc, tb):
@@ -83,11 +84,25 @@ class LevelRepository:
         dataBaseCursor.close()
 
     def save(self, level: Level) -> None:
-        '''Save a Level in DB, its choose between update or insert'''
-        if self.exists(level.canonical_id):
-            self.update(level)
+        '''Save a Level in DB, choosing among update, insert and update only master id'''
+        group_completed, group_completion_date = self.get_group_completion(level.master_level_id)
+
+        if group_completed:
+            level.completed = True
+            level.completion_date = group_completion_date
+
+        existing_level = self.exists(level.canonical_id)
+
+        if existing_level:
+            if level.completed:
+                self.update_master_level_id(level.master_level_id, level.canonical_id)
+            else:
+                self.update(level)
         else:
             self.insert(level)
+
+        if level.completed and level.master_level_id:
+            self.sync_linked_levels(level.master_level_id, level.completion_date)
             
     def find(self, canonical_id: str) -> Level | None:
         '''Find a level by its canonical id'''
@@ -155,4 +170,49 @@ class LevelRepository:
 
         linked_list = [Level(*row) for row in data]
         return linked_list
-    
+
+    def update_master_level_id(self, master_level_id: str, canonical_id: str) -> None:
+        '''Update only the master level id in DB'''
+
+        dataBaseCursor = self.dataBase.cursor()
+        sql = '''UPDATE levels
+        set master_level_id = ?
+        WHERE canonical_id = ?'''
+        dataBaseCursor.execute(sql, (master_level_id, canonical_id))
+        self.dataBase.commit()
+        dataBaseCursor.close()
+
+    def sync_linked_levels(self, master_level_id: str, completion_date: date) -> None:
+        '''Syncronize every linked level with completed True and completion date'''
+        if not master_level_id or not completion_date:
+            return
+
+        dataBaseCursor = self.dataBase.cursor()
+        sql = '''update levels
+        set completed = 1,
+            completion_date = ?
+        where master_level_id = ?'''
+        dataBaseCursor.execute(sql, (completion_date, master_level_id))
+        self.dataBase.commit()
+        dataBaseCursor.close()
+
+    def get_group_completion(self, master_level_id: str | None) -> tuple[bool, date | None]:
+        ''' Get the completion status and completion Date from a master id'''
+
+        if not master_level_id:
+            return False, None
+
+        dataBaseCursor = self.dataBase.cursor()
+
+        sql = '''select completion_date from levels
+        where master_level_id = ? and completed = 1
+        order by completion_date asc
+        limit 1'''
+
+        dataBaseCursor.execute(sql, (master_level_id,))
+        data = dataBaseCursor.fetchone()
+        dataBaseCursor.close()
+
+        if data:
+            return True, data[0]
+        return False, None
