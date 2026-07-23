@@ -4,20 +4,21 @@ from models.deathTracker import DeathTrackerData
 
 
 class DeathParser:
+    """ Parse Death Tracker files into DeathTrackerData objects."""
 
     def _load_json(self, path: Path) -> dict:
         with open(path, "r", encoding="UTF-8") as file:
             return load(file)
 
-    def parse(self, levelDir: Path) -> DeathTrackerData:
+    def parse(self, level_dir: Path) -> DeathTrackerData:
         # level dir is the path of the directory
 
-        metadata_path = levelDir / "metadata"
-        general_path = levelDir / "general.dt"
+        metadata_path = level_dir / "metadata"
+        general_path = level_dir / "general.dt"
 
         metadata_file = self._load_json(metadata_path)
         general_file = self._load_json(general_path)
-        canonical_id = levelDir.name
+        canonical_id = level_dir.name
 
         return DeathTrackerData(
             canonical_id=canonical_id,

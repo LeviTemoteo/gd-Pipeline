@@ -4,16 +4,16 @@ from models.playtimeTracker import PlaytimeTrackerData
 
 
 class PlaytimeParser:
-
+    """ Parse Playtime Tracker files into PlaytimeTrackerData objects."""
     def _load_json(self, path: Path) -> dict:
         with open(path, "r", encoding="UTF-8") as file:
             return load(file)
 
-    def parse(self, levelDir: Path) -> PlaytimeTrackerData:
+    def parse(self, level_dir: Path) -> PlaytimeTrackerData:
         #level dir is the exact path for the JSON file
 
-        level_File = self._load_json(levelDir)
-        Id_level = levelDir.stem
+        level_File = self._load_json(level_dir)
+        Id_level = level_dir.stem
 
         return PlaytimeTrackerData(
             level_id=Id_level,
