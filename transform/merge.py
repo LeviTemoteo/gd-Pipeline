@@ -11,7 +11,7 @@ class TransformLevel:
 
         completion_state = self._define_completion_state(DT_data.current_best)
         completion_date = self._define_completion_date(completion_state)
-        linked_levels = [DT_data.linked_levels]
+        linked_levels = DT_data.linked_levels.copy()
         linked_levels.append(DT_data.level_id)
 
         return Level(

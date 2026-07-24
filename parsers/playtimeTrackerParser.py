@@ -11,6 +11,8 @@ class PlaytimeParser:
 
     def parse(self, level_dir: Path) -> PlaytimeTrackerData:
         #level dir is the exact path for the JSON file
+        if not level_dir.exists():
+            return PlaytimeTrackerData(level_id="", playtime=0) # level_id is intentionally ignored, merge.py use the id from death tracker
 
         level_File = self._load_json(level_dir)
         Id_level = level_dir.stem

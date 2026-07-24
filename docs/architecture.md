@@ -139,6 +139,9 @@ Responsibilities:
 - Total playtime
 
 Unlike Death Tracker, Playtime Tracker does not distinguish between Original, Daily, Weekly, Event and Gauntlet levels.
+Online Levels & Variants: All variants of an online level share a single file named `{level_id}.json` (Ex: `144807542.json`). Consequently, Playtime Tracker natively accumulates playtime across all variants sharing the same base `level_id`.
+Editor Levels: Stored using the naming convention `Editor-{id}.json` (Ex: `Editor-1507.json`).
+Missing Records: If a level was played before Playtime Tracker was installed or lacks a JSON record, gd-Pipeline handles the missing file  by defaulting `playtime` to `0` seconds.
 
 ---
 
@@ -146,7 +149,7 @@ Unlike Death Tracker, Playtime Tracker does not distinguish between Original, Da
 
 Reads the JSON files and converts them into Python objects.
 
-No Data Processing is applied during this stage.
+No Data Processing is applied during this stage. If a Playtime Tracker JSON file does not exist for a given level (For Example: levels played prior to mod installation), the extractor returns a default data object with `playtime = 0`.
 
 ---
 
