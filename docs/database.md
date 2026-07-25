@@ -133,7 +133,7 @@ The aggregated record is computed using the following rules:
 |--------|-------------|
 | attempts | Sum |
 | tracked_attempts | Sum |
-| playtime | Sum |
+| playtime | Maximum |
 | current_best | Maximum |
 | worst_fail | Maximum |
 | completed | Any completed level |

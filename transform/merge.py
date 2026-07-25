@@ -53,7 +53,7 @@ class TransformLevel:
         # 2. First local level
         # 3. Editor level with the smallest id
         
-        if not linked_list:
+        if len(linked_list) <= 1:
             return None
 
         online = []

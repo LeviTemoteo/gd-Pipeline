@@ -9,3 +9,4 @@ __pycache__/
 *.session.sql
 *.code
 *.code-workspace
+requirements.txt

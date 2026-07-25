@@ -186,7 +186,7 @@ class LevelRepository:
 
     def sync_linked_levels(self, master_level_id: str, completion_date: date) -> None:
         '''Syncronize every linked level with completed True and completion date'''
-        if not master_level_id or not completion_date:
+        if not master_level_id and completion_date:
             return
 
         dataBaseCursor = self.dataBase.cursor()
