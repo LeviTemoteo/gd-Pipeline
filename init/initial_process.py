@@ -9,7 +9,7 @@ def initial_scan():
             continue
             
         pt_path = resolve_playtime_path(dt_path)
-        process_level(dt_path, pt_path)
+        process_level(dt_path, pt_path, watchdog_state=False)
 
 
 initialize_database()

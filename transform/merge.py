@@ -6,11 +6,17 @@ from datetime import date
 class TransformLevel:
     '''Class that merge deathtracker and playtimetracker data in a level class'''
 
-    def merge(self, DT_data: DeathTrackerData, PT_data: PlaytimeTrackerData) -> Level:
+    def merge(self, DT_data: DeathTrackerData, PT_data: PlaytimeTrackerData, watchdog=False) -> Level:
         '''Main function that return a level object'''
 
         completion_state = self._define_completion_state(DT_data.current_best)
-        completion_date = self._define_completion_date(completion_state)
+        
+        if watchdog:
+            completion_date = self._define_completion_date(completion_state)
+        else:
+            completion_date = None
+        
+        cBest = self._define_current_best(DT_data.current_best)
         linked_levels = DT_data.linked_levels.copy()
         linked_levels.append(DT_data.level_id)
 
@@ -22,8 +28,8 @@ class TransformLevel:
             difficulty= DT_data.difficulty,
             attempts= DT_data.attempts,
             tracked_attempts= DT_data.tracked_attempts,
-            current_best= DT_data.current_best,
-            worst_fail= self._define_worst_fail(DT_data.new_bests, DT_data.current_best),
+            current_best= cBest,
+            worst_fail= self._define_worst_fail(DT_data.new_bests, cBest),
             playtime= PT_data.playtime,
             completed= completion_state,
             completion_date= completion_date,    
@@ -62,10 +68,18 @@ class TransformLevel:
                 editor.append(level_id)
 
             else:
-                online.append(int(level_id))
+                online.append(level_id)
 
         if online:
-            return str(min(online))
+            online_List = []
+            for level in online:
+                if "-gauntlet" in level:
+                    online_List.append(int(level.removesuffix("-gauntlet")))
+                elif "-daily" in level:
+                    online_List.append(int(level.removesuffix("-daily")))
+                else:
+                    online_List.append(int(level))
+            return min(online_List)
         
         if local:
             return local[0]
@@ -88,6 +102,10 @@ class TransformLevel:
 
         return worst_fail
 
+    def _define_current_best(self, current_best: int) -> int:
+        if current_best < 0:
+            return 0
+        return current_best
 
 
 

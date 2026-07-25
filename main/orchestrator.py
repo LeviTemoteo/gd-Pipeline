@@ -5,13 +5,14 @@ from transform.merge import TransformLevel
 from repository.levelRepository import LevelRepository
 
 
-def process_level(dt_path: Path, pt_path: Path) -> None:
-    dt_data = DeathParser().parse(dt_path)
-
-    pt_data = PlaytimeParser().parse(pt_path)
-
-    level = TransformLevel().merge(DT_data= dt_data, PT_data= pt_data)
+def process_level(dt_path: Path, pt_path: Path, watchdog_state=True) -> None:
+    '''Main program, orchestrate the entire process of pipeline'''
     
+    dt_data = DeathParser().parse(dt_path)
+    if dt_data:
+        pt_data = PlaytimeParser().parse(pt_path)
+        if pt_data:
+            level = TransformLevel().merge(DT_data= dt_data, PT_data= pt_data, watchdog=watchdog_state)
 
-    with LevelRepository() as data_base:
-        data_base.save(level)
+            with LevelRepository() as data_base:
+                data_base.save(level)

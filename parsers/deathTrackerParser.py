@@ -1,4 +1,5 @@
-from json import load
+from json import load, JSONDecodeError
+from typing import Literal
 from pathlib import Path
 from models.deathTracker import DeathTrackerData
 
@@ -7,10 +8,13 @@ class DeathParser:
     """ Parse Death Tracker files into DeathTrackerData objects."""
 
     def _load_json(self, path: Path) -> dict:
-        with open(path, "r", encoding="UTF-8") as file:
-            return load(file)
+        try:
+            with open(path, "r", encoding="UTF-8") as file:
+                return load(file)
+        except (JSONDecodeError, FileNotFoundError):
+            return {}
 
-    def parse(self, level_dir: Path) -> DeathTrackerData:
+    def parse(self, level_dir: Path) -> DeathTrackerData | Literal[False]:
         # level dir is the path of the directory
 
         metadata_path = level_dir / "metadata"
@@ -18,7 +22,26 @@ class DeathParser:
 
         metadata_file = self._load_json(metadata_path)
         general_file = self._load_json(general_path)
+
         canonical_id = level_dir.name
+
+        if not metadata_file:
+            return False
+
+        if not general_file:
+            return DeathTrackerData(
+                        canonical_id=canonical_id,
+                        level_id=self._get_level_id(canonical_id),
+                        linked_levels=metadata_file.get("LinkedLevels", []),
+                        level_name=metadata_file.get("levelName", ""),
+                        difficulty=metadata_file.get("difficulty", 0),
+                        attempts=metadata_file.get("attempts", 0),
+                        tracked_attempts=0,
+                        new_bests=[],
+                        current_best= 0,
+                    )
+        
+        
 
         return DeathTrackerData(
             canonical_id=canonical_id,

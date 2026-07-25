@@ -1,4 +1,4 @@
-from json import load
+from json import load, JSONDecodeError
 from pathlib import Path
 from models.playtimeTracker import PlaytimeTrackerData
 
@@ -6,15 +6,22 @@ from models.playtimeTracker import PlaytimeTrackerData
 class PlaytimeParser:
     """ Parse Playtime Tracker files into PlaytimeTrackerData objects."""
     def _load_json(self, path: Path) -> dict:
-        with open(path, "r", encoding="UTF-8") as file:
-            return load(file)
+        try:
+            with open(path, "r", encoding="UTF-8") as file:
+                return load(file)
+        except (JSONDecodeError, FileNotFoundError):
+                return {}
 
-    def parse(self, level_dir: Path) -> PlaytimeTrackerData:
+    def parse(self, level_dir: Path) -> PlaytimeTrackerData | bool:
         #level dir is the exact path for the JSON file
         if not level_dir.exists():
             return PlaytimeTrackerData(level_id="", playtime=0) # level_id is intentionally ignored, merge.py use the id from death tracker
 
         level_File = self._load_json(level_dir)
+
+        if not level_File:
+            return PlaytimeTrackerData(level_id="", playtime=0)
+        
         Id_level = level_dir.stem
 
         return PlaytimeTrackerData(
@@ -28,7 +35,11 @@ class PlaytimeParser:
         sessions = level_file.get("sessions", [])
         total = 0
         for session in sessions:
-            for init, end in session:
-                total += end - init
+            for interval in session:
+                try:
+                    init, end = interval
+                    total += end - init
+                except (ValueError, TypeError):
+                    continue
         return total
 

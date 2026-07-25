@@ -133,7 +133,7 @@ Rules:
 ## Know Limitations
 The representative level is selected using the smallest Geometry Dash level_id, so this approach assumes that copied levels are created after the original level.
 Although Geometry Dash allows exceptional cases where this assumption may not hold, they are considered extremely rare and are intentionally ignored by the project.
-Levels played before installing Playtime Tracker will not have historical playtime data. gd-Pipeline treats missing files as `0` seconds.
+
 
 ## User Requirements
 Linked Progression depends on correct Death Tracker configuration.

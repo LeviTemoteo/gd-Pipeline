@@ -39,10 +39,11 @@ class LevelRepository:
         values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
         
         items = list(asdict(level).values())
-
+  
         dataBaseCursor.execute(sql, items)
         self.dataBase.commit()
         dataBaseCursor.close()   
+       
 
     def update(self, level: Level) -> None:
         '''Update the level in DB'''
@@ -78,10 +79,11 @@ class LevelRepository:
             level.completion_date,
             level.canonical_id
         )
-
+        
         dataBaseCursor.execute(sql, params)
         self.dataBase.commit()
         dataBaseCursor.close()
+        
 
     def save(self, level: Level) -> None:
         '''Save a Level in DB, choosing among update, insert and update only master id'''

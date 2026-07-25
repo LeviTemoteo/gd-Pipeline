@@ -272,7 +272,8 @@ Linked levels share their playtime through the same aggregation process used for
 
 ### Notes
 
-Although Geometry Dash players commonly express playtime in hours, gd-Pipeline stores the raw duration in seconds to preserve precision.
+- Variant Consolidation: Because Playtime Tracker stores all variants of an online level (`-daily`, `-gauntlet`, etc.) inside a single `{level_id}.json` file, the extracted playtime value reflects the cumulative time spent across all variants of that `level_id`.
+- Editor Levels: Editor levels resolve to `Editor-{id}.json` files in the Playtime Tracker directory.
 
 ## completed
 
