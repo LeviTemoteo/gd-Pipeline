@@ -234,6 +234,9 @@ If the player completed the level without recording any previous personal best, 
 
 ```
 97
+58
+0
+99
 ```
 
 ### Notes
@@ -285,10 +288,10 @@ Linked levels share their playtime through the same aggregation process used for
 
 ### Description
 
-Indicates whether the player has completed the level.
+Indicates whether the logical level has been completed.
 
-For linked levels, the entire linked group is considered completed as soon as any level in the group reaches 100%.
-Once this value becomes `TRUE`, the pipeline no longer updates the record.
+For linked levels, this value is synchronized across every record sharing the same `master_level_id`, so the entire linked group is considered completed as soon as any level in the group reaches 100%.
+Once this value becomes `TRUE`, the pipeline no longer updates the records.
 
 Only runs starting at 0% may change this value, so completions obtained exclusively from Start Position runs are ignored.
 
@@ -302,11 +305,10 @@ Only runs starting at 0% may change this value, so completions obtained exclusiv
 
 ### Description
 
-Date on which the player completed the level for the first time. For linked levels, the earliest completion date within the linked group is used.
+Date on which the player completed the level for the first time. For linked levels, the earliest completion date within the linked group is used and the completion date is synchronized across every record sharing the same `master_level_id`.
 The value remains `NULL` until the level is completed. 
 
 Only valid 0% completions generate a completion date.
-
 
 ### Example
 
