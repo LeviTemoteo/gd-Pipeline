@@ -241,15 +241,11 @@ If the player completed the level without recording any previous personal best, 
 
 ### Notes
 
-The value is computed by gd-Pipeline using Death Tracker's `newBests` history.
+This value is computed by gd-Pipeline using Death Tracker's `currentBest` and `newBests`.
+Runs starting from Start Positions are ignored.
 
 When linked levels are synchronized, the exported value corresponds to the highest `worst_fail` among every level in the linked group.
 The value ranges from 0 to 99.
-
-### Notes
-
-This value is computed by gd-Pipeline using Death Tracker's `currentBest` and `newBests`.
-Runs starting from Start Positions are ignored.
 
 ## playtime
 
@@ -275,8 +271,8 @@ Linked levels share their playtime through the same aggregation process used for
 
 ### Notes
 
-- Variant Consolidation: Because Playtime Tracker stores all variants of an online level (`-daily`, `-gauntlet`, etc.) inside a single `{level_id}.json` file, the extracted playtime value reflects the cumulative time spent across all variants of that `level_id`.
-- Editor Levels: Editor levels resolve to `Editor-{id}.json` files in the Playtime Tracker directory.
+Because Playtime Tracker stores all variants of an online level (`-daily`, `-gauntlet`, etc.) inside a single `level_id.json` file, the extracted playtime value reflects the cumulative time spent across all variants of that `level_id`. Linked levels that use independent Playtime Tracker files have their playtime aggregated by gd-Pipeline during synchronization.
+Editor levels resolve to `Editor-id.json` files in the Playtime Tracker directory.
 
 ## completed
 

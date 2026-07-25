@@ -79,7 +79,7 @@ The exported statistics are computed using the following rules.
 |--------|-------------|
 | attempts | Sum |
 | tracked_attempts | Sum |
-| playtime | Sum |
+| playtime | Maximum or Sum |
 | current_best | Maximum |
 | worst_fail | Maximum |
 | completed | Already synchronized |
