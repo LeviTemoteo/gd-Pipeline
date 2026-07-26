@@ -1,16 +1,20 @@
 from json import load, JSONDecodeError
 from pathlib import Path
 from models.playtimeTracker import PlaytimeTrackerData
-
+from time import sleep
 
 class PlaytimeParser:
     """ Parse Playtime Tracker files into PlaytimeTrackerData objects."""
     def _load_json(self, path: Path) -> dict:
-        try:
-            with open(path, "r", encoding="UTF-8") as file:
-                return load(file)
-        except (JSONDecodeError, FileNotFoundError):
-                return {}
+            for _ in range(5):
+                try:
+                    try:
+                        with open(path, "r", encoding="UTF-8") as file:
+                            return load(file)
+                    except (JSONDecodeError, FileNotFoundError):
+                        return {}
+                except PermissionError: 
+                    sleep(0.2)
 
     def parse(self, level_dir: Path) -> PlaytimeTrackerData | bool:
         #level dir is the exact path for the JSON file

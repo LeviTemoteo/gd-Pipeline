@@ -2,17 +2,21 @@ from json import load, JSONDecodeError
 from typing import Literal
 from pathlib import Path
 from models.deathTracker import DeathTrackerData
-
+from time import sleep
 
 class DeathParser:
     """ Parse Death Tracker files into DeathTrackerData objects."""
 
     def _load_json(self, path: Path) -> dict:
-        try:
-            with open(path, "r", encoding="UTF-8") as file:
-                return load(file)
-        except (JSONDecodeError, FileNotFoundError):
-            return {}
+        for _ in range(5):
+            try:
+                try:
+                    with open(path, "r", encoding="UTF-8") as file:
+                        return load(file)
+                except (JSONDecodeError, FileNotFoundError):
+                    return {}
+            except PermissionError: 
+                sleep(0.2)
 
     def parse(self, level_dir: Path) -> DeathTrackerData | Literal[False]:
         # level dir is the path of the directory

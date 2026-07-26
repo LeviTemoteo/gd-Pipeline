@@ -1,3 +1,4 @@
-from init.initial_process import run_scan
+from watcher.watchdog_starter import watchdog
 
-run_scan()
+if __name__ == "__main__":
+    watchdog()
