@@ -48,7 +48,7 @@ class TransformLevel:
         '''Verify if current best is  100%'''
         return current_best == 100
 
-    def _define_master_level_id(self, linked_list: list) -> str | None:
+    def _define_master_level_id(self, original_list: list) -> str | None:
         '''Search the smallest id in the list, if the list is empty, return None. Also define the master id if a linkead already have one'''
 
         # Priority:
@@ -56,6 +56,8 @@ class TransformLevel:
         # 2. First local level
         # 3. Online level with the smallest id
         # 4. Editor level with the smallest id
+
+        linked_list = list(original_list)
         
         if len(linked_list) <= 1:
             return None
@@ -63,9 +65,13 @@ class TransformLevel:
         with LevelRepository() as database:
             possible_master_id = database.find_master_level_id(linked_list[0])
             if possible_master_id:
-                for item in ("-local", "-editor", "-daily", "-gauntlet"):
-                    possible_master_id = possible_master_id.removesuffix(item)
-                possible_master_id = int(possible_master_id)
+                master_master_id = database.find_master_level_id(possible_master_id)
+                if master_master_id is not None:
+                    linked_list.append(master_master_id)
+                elif possible_master_id is not None:
+                    linked_list.append(possible_master_id)
+
+        
 
         online = []
         local = []
@@ -83,9 +89,6 @@ class TransformLevel:
 
         
         if local:
-            if possible_master_id:
-                local.append(possible_master_id)
-            
             return f"{min(local)}-local"
 
         if online:
@@ -97,12 +100,8 @@ class TransformLevel:
                     online_List.append(int(level.removesuffix("-daily")))
                 else:
                     online_List.append(int(level))
-            if possible_master_id:
-                online_List.append(possible_master_id)
-            return min(online_List)
-
-        if possible_master_id:
-            editor.append(possible_master_id)
+            return str(min(online_List))
+        
         return f"{min(editor)}-editor"
 
     def _define_worst_fail(self, new_bests: list, current_best: int) -> int:

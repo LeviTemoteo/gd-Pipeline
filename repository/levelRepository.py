@@ -219,14 +219,14 @@ class LevelRepository:
             return True, data[0]
         return False, None
 
-    def find_master_level_id(self, canonical_id: str) -> str | None:
+    def find_master_level_id(self, level_id: str) -> str | None:
         dataBaseCursor = self.dataBase.cursor()
 
         sql = '''
         SELECT master_level_id FROM levels 
-        WHERE canonical_id = ?
+        WHERE level_id = ?
         '''
-        dataBaseCursor.execute(sql, (canonical_id,))
+        dataBaseCursor.execute(sql, (level_id,))
         row = dataBaseCursor.fetchone()
         dataBaseCursor.close()
         if row:
