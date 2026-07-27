@@ -186,14 +186,14 @@ class LevelRepository:
 
     def sync_linked_levels(self, master_level_id: str, completion_date: date) -> None:
         '''Syncronize every linked level with completed True and completion date'''
-        if not master_level_id and completion_date:
+        if not master_level_id or completion_date:
             return
 
         dataBaseCursor = self.dataBase.cursor()
         sql = '''update levels
         set completed = 1,
             completion_date = ?
-        where master_level_id = ?'''
+        where master_level_id = ? and completed = 0'''
         dataBaseCursor.execute(sql, (completion_date, master_level_id))
         self.dataBase.commit()
         dataBaseCursor.close()
@@ -218,3 +218,17 @@ class LevelRepository:
         if data:
             return True, data[0]
         return False, None
+
+    def find_master_level_id(self, canonical_id: str) -> str | None:
+        dataBaseCursor = self.dataBase.cursor()
+
+        sql = '''
+        SELECT master_level_id FROM levels 
+        WHERE canonical_id = ?
+        '''
+        dataBaseCursor.execute(sql, (canonical_id,))
+        row = dataBaseCursor.fetchone()
+        dataBaseCursor.close()
+        if row:
+            return row[0]
+        return None

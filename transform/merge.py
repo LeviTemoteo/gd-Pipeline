@@ -2,6 +2,7 @@ from models.level import Level
 from models.deathTracker import DeathTrackerData
 from models.playtimeTracker import PlaytimeTrackerData
 from datetime import date
+from repository.levelRepository import LevelRepository
 
 class TransformLevel:
     '''Class that merge deathtracker and playtimetracker data in a level class'''
@@ -34,6 +35,8 @@ class TransformLevel:
             completed= completion_state,
             completion_date= completion_date,    
         )
+        
+        
 
     def _define_completion_date(self, completion_state: bool) -> date | None:
         '''Get the date if completion state is True'''
@@ -46,15 +49,23 @@ class TransformLevel:
         return current_best == 100
 
     def _define_master_level_id(self, linked_list: list) -> str | None:
-        '''Search the smallest id in the list, if the list is empty, return None'''
+        '''Search the smallest id in the list, if the list is empty, return None. Also define the master id if a linkead already have one'''
 
         # Priority:
-        # 1. Online level with the smallest id
+        # 1. The level already has a master id
         # 2. First local level
-        # 3. Editor level with the smallest id
+        # 3. Online level with the smallest id
+        # 4. Editor level with the smallest id
         
         if len(linked_list) <= 1:
             return None
+
+        with LevelRepository() as database:
+            possible_master_id = database.find_master_level_id(linked_list[0])
+            if possible_master_id:
+                for item in ("-local", "-editor", "-daily", "-gauntlet"):
+                    possible_master_id = possible_master_id.removesuffix(item)
+                possible_master_id = int(possible_master_id)
 
         online = []
         local = []
@@ -62,13 +73,20 @@ class TransformLevel:
         
         for level_id in linked_list:
             if level_id.endswith("-local"):
-                local.append(level_id)
+                local.append(int(level_id.removesuffix("-local")))
 
             elif level_id.endswith("-editor"):
-                editor.append(level_id)
+                editor.append(int(level_id.removesuffix("-editor")))
 
             else:
                 online.append(level_id)
+
+        
+        if local:
+            if possible_master_id:
+                local.append(possible_master_id)
+            
+            return f"{min(local)}-local"
 
         if online:
             online_List = []
@@ -79,14 +97,13 @@ class TransformLevel:
                     online_List.append(int(level.removesuffix("-daily")))
                 else:
                     online_List.append(int(level))
+            if possible_master_id:
+                online_List.append(possible_master_id)
             return min(online_List)
-        
-        if local:
-            return local[0]
 
-        editor_ids = [int(level_id.removesuffix("-editor")) for level_id in editor] # Compare the ids
-
-        return f"{min(editor_ids)}-editor"
+        if possible_master_id:
+            editor.append(possible_master_id)
+        return f"{min(editor)}-editor"
 
     def _define_worst_fail(self, new_bests: list, current_best: int) -> int:
         '''Get the max best less than 100% '''
