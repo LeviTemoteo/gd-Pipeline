@@ -35,8 +35,9 @@ class LevelRepository:
         worst_fail,
         playtime,
         completed,
-        completion_date)
-        values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+        completion_date,
+        attempts_synced)
+        values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
         
         items = list(asdict(level).values())
   
@@ -61,7 +62,8 @@ class LevelRepository:
             worst_fail = ?,
             playtime = ?,
             completed = ?,
-            completion_date = ?
+            completion_date = ?,
+            attempts_synced = ?
         where canonical_id = ?
         '''
 
@@ -77,6 +79,7 @@ class LevelRepository:
             level.playtime,
             level.completed,
             level.completion_date,
+            level.attempts_synced,
             level.canonical_id
         )
         
@@ -98,7 +101,7 @@ class LevelRepository:
         if existing_level:
             if existing_level.completed:
                 self.update_master_level_id(level.master_level_id, level.canonical_id)
-                if self.find_attempts_by_canonical_id(level.canonical_id) == 0:
+                if existing_level.attempts_synced == 0:
                     self.update_attempts_by_canonical_id(level.canonical_id, level.attempts)
             else:
                 self.update(level)
@@ -269,3 +272,18 @@ class LevelRepository:
             dataBaseCursor.execute(sql, (attempts, canonical_id))
             self.dataBase.commit()
             dataBaseCursor.close()
+
+    def get_attempts_sync(self, canonical_id: str) -> int | None:
+        dataBaseCursor = self.dataBase.cursor()
+
+        sql = '''
+        SELECT attempts_synced FROM levels
+        WHERE canonical_id = ?
+        '''
+        dataBaseCursor.execute(sql, (canonical_id,))
+        row = dataBaseCursor.fetchone()
+        dataBaseCursor.close()
+
+        if row:
+            return row[0]
+        return None

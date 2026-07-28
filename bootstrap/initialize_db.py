@@ -17,7 +17,9 @@ def initialize_database():
     worst_fail INTEGER NOT NULL CHECK (worst_fail BETWEEN 0 AND 99),
     playtime INTEGER NOT NULL CHECK (playtime >= 0),
     completed BOOLEAN NOT NULL DEFAULT 0, 
-    completion_date DATE)
+    completion_date DATE,
+    attempts_synced INTEGER CHECK (attempts_synced IN (0,1))
+    )
     '''
     dataBaseCursor.execute(sql)
 

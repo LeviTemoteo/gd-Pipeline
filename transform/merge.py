@@ -33,7 +33,8 @@ class TransformLevel:
             worst_fail= self._define_worst_fail(DT_data.new_bests, cBest),
             playtime= PT_data.playtime,
             completed= completion_state,
-            completion_date= completion_date,    
+            completion_date= completion_date, 
+            attempts_synced= self._define_attempts_synced(DT_data.canonical_id, DT_data.current_best, watchdog)   
         )
         
         
@@ -123,6 +124,18 @@ class TransformLevel:
             return 0
         return current_best
 
+    def _define_attempts_synced(self, canonical_id: str, current_best: int, watchdog: bool) -> int | None:
+        if current_best < 100:
+            return None
+
+        if not watchdog:
+            return 1
+        
+        with LevelRepository() as database:
+            attempts_sync = database.get_attempts_sync(canonical_id)
+            if attempts_sync is None:
+                return 0
+            return 1
 
 
                 
