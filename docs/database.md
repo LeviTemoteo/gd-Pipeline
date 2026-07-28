@@ -100,7 +100,7 @@ Runs beginning from Start Positions still contribute to:
 
 ### One Row per Level
 
-Each level is represented by a single row in the database, then the pipeline continuously updates the record while the level is in progress. Once the level is completed, its gameplay performance data becomes immutable. The repository will only update the master_level_id if the level's linked group is modified by the player. Linked levels remain stored as independent rows, so their statistics are aggregated later using master_level_id.
+Each level is represented by a single row in the database, then the pipeline continuously updates the record while the level is in progress. Once the level is completed, its gameplay performance data becomes immutable. The repository will only update the master_level_id if the level's linked group is modified by the player and attempts (just once) after the death tracker update the amount of attempts. Linked levels remain stored as independent rows, so their statistics are aggregated later using master_level_id.
 This approach keeps the database synchronized with the player's current progress while avoiding unnecessary historical records.
 
 ### Canonical Identifier
