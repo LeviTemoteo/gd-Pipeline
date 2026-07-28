@@ -7,7 +7,7 @@ from repository.levelRepository import LevelRepository
 class TransformLevel:
     '''Class that merge deathtracker and playtimetracker data in a level class'''
 
-    def merge(self, DT_data: DeathTrackerData, PT_data: PlaytimeTrackerData, watchdog=False) -> Level:
+    def merge(self, DT_data: DeathTrackerData, PT_data: PlaytimeTrackerData, watchdog=True) -> Level:
         '''Main function that return a level object'''
 
         completion_state = self._define_completion_state(DT_data.current_best)

@@ -98,6 +98,8 @@ class LevelRepository:
         if existing_level:
             if existing_level.completed:
                 self.update_master_level_id(level.master_level_id, level.canonical_id)
+                if self.find_attempts_by_canonical_id(level.canonical_id) == 0:
+                    self.update_attempts_by_canonical_id(level.canonical_id, level.attempts)
             else:
                 self.update(level)
         else:
@@ -241,3 +243,29 @@ class LevelRepository:
         if row:
             return row[0]
         return None
+
+    def find_attempts_by_canonical_id(self, canonical_id: str) -> int | None:
+        dataBaseCursor = self.dataBase.cursor()
+
+        sql = '''
+        SELECT attempts from levels
+        WHERE canonical_id = ?            
+        '''
+        dataBaseCursor.execute(sql, (canonical_id,))
+        row = dataBaseCursor.fetchone()
+        dataBaseCursor.close()
+        if row:
+            return row[0]
+        return None
+
+    def update_attempts_by_canonical_id(self, canonical_id: str, attempts: int) -> None:
+            dataBaseCursor = self.dataBase.cursor()
+    
+            sql = '''
+            UPDATE levels
+            SET attempts = ?
+            WHERE canonical_id = ?            
+            '''
+            dataBaseCursor.execute(sql, (attempts, canonical_id))
+            self.dataBase.commit()
+            dataBaseCursor.close()
