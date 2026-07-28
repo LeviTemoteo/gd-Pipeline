@@ -35,6 +35,8 @@ BOOLEAN completed
 
 DATE completion_date
 
+INTEGER attempts_synced
+
 }
 ```
 ### Tables
@@ -55,6 +57,7 @@ The `levels` table stores the latest known state of every tracked level and each
 | playtime        | INTEGER | Total playtime in seconds |
 | completed       | BOOLEAN | Indicates whether the level has been completed |
 | completion_date | DATE    | Date the level was completed  |
+| attempts_synced | INTEGER | State flag for attempt, synchronization (NULL = in progress, 0 = pending sync, 1 = frozen) |
 
 ### Constraints
 
@@ -67,6 +70,7 @@ The `levels` table stores the latest known state of every tracked level and each
 - `completion_date` may be NULL.
 - `completed` defaults to FALSE.
 - `master_level_id` may be NULL.
+- `attempts_synced` must be NULL, 0, or 1.
 
 ## Indexes
 
