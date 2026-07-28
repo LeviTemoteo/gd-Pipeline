@@ -93,10 +93,10 @@ class LevelRepository:
             level.completed = True
             level.completion_date = group_completion_date
 
-        existing_level = self.exists(level.canonical_id)
+        existing_level = self.find(level.canonical_id)
 
         if existing_level:
-            if level.completed:
+            if existing_level.completed:
                 self.update_master_level_id(level.master_level_id, level.canonical_id)
             else:
                 self.update(level)
@@ -186,14 +186,23 @@ class LevelRepository:
 
     def sync_linked_levels(self, master_level_id: str, completion_date: date) -> None:
         '''Syncronize every linked level with completed True and completion date'''
-        if not master_level_id or completion_date:
+        if not master_level_id:
             return
 
         dataBaseCursor = self.dataBase.cursor()
         sql = '''update levels
-        set completed = 1,
-            completion_date = ?
+        set completed = 1
         where master_level_id = ? and completed = 0'''
+
+        dataBaseCursor.execute(sql, (master_level_id,))
+
+        if not completion_date:
+            return
+
+        sql = '''update levels
+        set completion_date = ?
+        where master_level_id = ? and completed = 1 '''
+
         dataBaseCursor.execute(sql, (completion_date, master_level_id))
         self.dataBase.commit()
         dataBaseCursor.close()
