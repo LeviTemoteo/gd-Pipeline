@@ -89,7 +89,7 @@ class LevelRepository:
         
 
     def save(self, level: Level) -> None:
-        '''Save a Level in DB, choosing among update, insert and update only master id'''
+        '''Save a Level in DB, choosing among update, insert, update only master id and update attempts'''
         group_completed, group_completion_date = self.get_group_completion(level.master_level_id)
 
         if group_completed:
@@ -99,17 +99,25 @@ class LevelRepository:
         existing_level = self.find(level.canonical_id)
 
         if existing_level:
-            if existing_level.completed:
-                self.update_master_level_id(level.master_level_id, level.canonical_id)
-                if existing_level.attempts_synced == 0:
-                    self.update_attempts_by_canonical_id(level.canonical_id, level.attempts)
-            else:
+
+            if not existing_level.completed:
                 self.update(level)
+                if existing_level.attempts_synced is None and level.completed == 1:
+                    self.update_attempts_synced(level.canonical_id, 0)
+                    
+
+            else:
+                self.update_master_level_id(level.master_level_id, level.canonical_id)
+                if level.attempts_synced in (None, 0):
+                    self.update_attempts_by_canonical_id(level.canonical_id, level.attempts)
+                    self.update_attempts_synced(level.canonical_id, 1)
+                    
         else:
             self.insert(level)
 
         if level.completed and level.master_level_id:
-            self.sync_linked_levels(level.master_level_id, level.completion_date)
+            self.sync_linked_levels(level.master_level_id, level.completion_date, level.attempts_synced)
+            
             
     def find(self, canonical_id: str) -> Level | None:
         '''Find a level by its canonical id'''
@@ -189,7 +197,7 @@ class LevelRepository:
         self.dataBase.commit()
         dataBaseCursor.close()
 
-    def sync_linked_levels(self, master_level_id: str, completion_date: date) -> None:
+    def sync_linked_levels(self, master_level_id: str, completion_date: date, attempts_sync: int | None) -> None:
         '''Syncronize every linked level with completed True and completion date'''
         if not master_level_id:
             return
@@ -209,6 +217,14 @@ class LevelRepository:
         where master_level_id = ? and completed = 1 '''
 
         dataBaseCursor.execute(sql, (completion_date, master_level_id))
+
+        if attempts_sync is None:
+            sql = '''update levels
+            set attempts_synced = 0
+            where master_level_id = ? and attempts_synced IS NULL'''
+
+        dataBaseCursor.execute(sql, (master_level_id,))
+
         self.dataBase.commit()
         dataBaseCursor.close()
 
@@ -287,3 +303,15 @@ class LevelRepository:
         if row:
             return row[0]
         return None
+    
+    def update_attempts_synced(self, canonical_id: str, value: int) -> None:
+        dataBaseCursor = self.dataBase.cursor()
+
+        sql='''
+        UPDATE levels
+        SET attempts_synced = ? 
+        WHERE canonical_id = ?
+        '''
+        dataBaseCursor.execute(sql, (value, canonical_id))
+        self.dataBase.commit()
+        dataBaseCursor.close()
