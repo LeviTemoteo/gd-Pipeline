@@ -90,15 +90,21 @@ DB --> G
 ## State Diagram
 
 ```mermaid
-flowchart LR
-    InProgress["Level In Progress"] -->|Exit level| Updating["Updating"]
+flowchart TD
+    InProgress["In Progress\n(attempts_synced = NULL)"]
+    Updating["Updating Level Stats"]
+    PendingSync["Pending Sync\n(attempts_synced = 0)"]
+    Frozen["Frozen\n(attempts_synced = 1)"]
+
+    InProgress -->|Exit level| Updating
     Updating -->|Not completed| InProgress
-    Updating -->|Level completed| Completed["Completed"]
+    Updating -->|Level completed| PendingSync
+    PendingSync -->|Final attempts synced| Frozen
 ```
 
-While the player has not completed the level, the pipeline keeps updating its statistics every time the player exits the level.
+While the player has not completed the level (attempts_synced = NULL), the pipeline keeps updating its statistics every time the death tracker update the files.
 
-Once the level has been completed, its gameplay statistics become immutable. Only structural changes, such as updating the master_level_id, are allowed if group links change.
+Once the level has been completed, its status changes to peding sync (attempts_synced = 0), waiting for death tracker update. Gameplay statistics become immutable only after this final sync is completed and the record is frozen (attempts_synced = 1). Only structural changes, such as updating the master_level_id, are allowed if group links change.
 
 ---
 
@@ -301,7 +307,7 @@ Google Sheets is synchronized from SQLite and should never be treated as the pri
 
 ## Completed Levels
 
-A linked-level group is considered completed as soon as any level in the group reaches 100%. After that, the aggregated record becomes immutable and will no longer receive updates, however, its master_level_id may still be updated if the user modifies linked levels inside Death Tracker.
+A linked-level group is considered completed as soon as any level in the group reaches 100%. After that, the aggregated record becomes immutable and will no longer receive updates, however, its master_level_id may still be updated if the user modifies linked levels inside Death Tracker. Also, the attempts can change if `attempts_synced` still equals to 0.
 This prevents historical data from being accidentally overwritten and reflects the project's goal of tracking the completion state of each level.
 
 ---
