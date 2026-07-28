@@ -324,4 +324,4 @@ Each mod is responsible for a different set of information.
 | Playtime | Playtime Tracker |
 | Completion Status | gd-Pipeline |
 | Completion Date | gd-Pipeline |
-
+| Attempts Synced | gd-Pipeline |
