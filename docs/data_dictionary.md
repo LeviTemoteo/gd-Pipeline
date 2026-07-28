@@ -311,3 +311,19 @@ Only valid 0% completions generate a completion date.
 ```
 2015-11-03
 ```
+## attempts_synced
+
+| Property | Value |
+|----------|-------|
+| Source | gd-Pipeline |
+| Type | INT |
+| Nullable | Yes |
+
+### Description
+
+Controls the final attempt count synchronization.
+
+It follows a 3-state lifecyle:
+* `NULL`: Level is in progress. Regular gameplay statistics updates are allowed.
+* `0`: Level has been completed (`completed = TRUE`), but is pending the final attempt count sync from Death Tracker.
+* `1`: Final attempt count has been synchronized. The attempts is permanently frozen against further gameplay updates.
