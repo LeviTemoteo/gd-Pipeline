@@ -35,6 +35,8 @@ BOOLEAN completed
 
 DATE completion_date
 
+INTEGER attempts_synced
+
 }
 ```
 ### Tables
@@ -55,6 +57,7 @@ The `levels` table stores the latest known state of every tracked level and each
 | playtime        | INTEGER | Total playtime in seconds |
 | completed       | BOOLEAN | Indicates whether the level has been completed |
 | completion_date | DATE    | Date the level was completed  |
+| attempts_synced | INTEGER | State flag for attempt, synchronization (NULL = in progress, 0 = pending sync, 1 = frozen) |
 
 ### Constraints
 
@@ -67,6 +70,7 @@ The `levels` table stores the latest known state of every tracked level and each
 - `completion_date` may be NULL.
 - `completed` defaults to FALSE.
 - `master_level_id` may be NULL.
+- `attempts_synced` must be NULL, 0, or 1.
 
 ## Indexes
 
@@ -96,7 +100,7 @@ Runs beginning from Start Positions still contribute to:
 
 ### One Row per Level
 
-Each level is represented by a single row in the database, then the pipeline continuously updates the record while the level is in progress. Once the level is completed, its gameplay performance data becomes immutable. The repository will only update the master_level_id if the level's linked group is modified by the player. Linked levels remain stored as independent rows, so their statistics are aggregated later using master_level_id.
+Each level is represented by a single row in the database, then the pipeline continuously updates the record while the level is in progress. Once the level is completed, its gameplay performance data becomes immutable. The repository will only update the master_level_id if the level's linked group is modified by the player and attempts (just once) after the death tracker update the amount of attempts. Linked levels remain stored as independent rows, so their statistics are aggregated later using master_level_id.
 This approach keeps the database synchronized with the player's current progress while avoiding unnecessary historical records.
 
 ### Canonical Identifier
