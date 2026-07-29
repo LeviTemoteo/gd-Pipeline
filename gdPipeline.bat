@@ -4,7 +4,7 @@ title gdPipeline - Watchdog
 cd /d "%~dp0"
 
 echo ------------------------------------------------
-echo   gdPipeline has started! Go play some levels.
+echo   gdPipeline has started! Let's go Ahead!
 echo ------------------------------------------------
 echo.
 

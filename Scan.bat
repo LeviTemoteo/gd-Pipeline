@@ -12,6 +12,6 @@ python FirstScanStarter.py
 
 echo.
 echo ---------------------------------------------------
-echo                     Finished!
+echo            Finished! Let's go Ahead!
 echo ---------------------------------------------------
 pause

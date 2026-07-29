@@ -10,5 +10,5 @@ echo installing requirements...
 pip install -r requirements.txt
 
 echo.
-echo Finished!
+echo setup completed!
 pause
