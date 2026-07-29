@@ -1,7 +1,6 @@
-data/
-config/
 *.env
 *.db
+*.db-journal
 *.sqlite
 *.sqlite3
 __pycache__/
@@ -9,5 +8,3 @@ __pycache__/
 *.session.sql
 *.code
 *.code-workspace
-requirements.txt
-*.bat

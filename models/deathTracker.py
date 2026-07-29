@@ -14,4 +14,4 @@ class DeathTrackerData:
     current_best: int 
 
     def display(self):
-            print(f"[Level] canonical_id: {self.canonical_id} | level_id: {self.level_id} | linked_levels: {self.linked_levels} | level_name: {self.level_name} | difficulty: {self.difficulty} | attempts: {self.attempts} | tracked_attempts: {self.tracked_attempts} | new_bestes: {self.new_bests} | current_best: {self.current_best}")
+            print(f"[DT] canonical_id: {self.canonical_id} | level_id: {self.level_id} | linked_levels: {self.linked_levels} | level_name: {self.level_name} | difficulty: {self.difficulty} | attempts: {self.attempts} | tracked_attempts: {self.tracked_attempts} | new_bestes: {self.new_bests} | current_best: {self.current_best}")

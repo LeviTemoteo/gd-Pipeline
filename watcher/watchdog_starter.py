@@ -27,7 +27,7 @@ def worker_consumer():
 
         last_processed[path_str] = now
         sleep(0.2)
-        print("Fase aceita: ", dir_path)
+        # print("Fase aceita: ", dir_path)
         process_level(dt_path=dir_path, pt_path= resolve_playtime_path(dir_path), watchdog_state=True)
         task_queue.task_done()
 
@@ -55,7 +55,7 @@ class gdFileHandler(FileSystemEventHandler):
         else:
            dir_path = file_path.parent
 
-        print("Passou nos filtros: ", dir_path)
+        # print("Passou nos filtros: ", dir_path)
         task_queue.put(dir_path)
 
 

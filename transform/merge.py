@@ -34,7 +34,7 @@ class TransformLevel:
             playtime= PT_data.playtime,
             completed= completion_state,
             completion_date= completion_date, 
-            attempts_synced= self._define_attempts_synced(completion_state,watchdog) 
+            attempts_synced= self._define_attempts_synced(cBest,watchdog) 
         )
         
         
@@ -125,8 +125,8 @@ class TransformLevel:
         return current_best
 
 
-    def _define_attempts_synced(self, completion, watchdog: bool) -> int | None:
-        if not watchdog and completion == 1:
+    def _define_attempts_synced(self, current_best, watchdog: bool) -> int | None:
+        if not watchdog and current_best == 100:
             return 1
         
         return None
