@@ -46,7 +46,7 @@ class DeathParser:
                     )
         
         
-
+        new_bests = general_file.get("newBests", [])
         return DeathTrackerData(
             canonical_id=canonical_id,
             level_id=self._get_level_id(canonical_id),
@@ -55,10 +55,16 @@ class DeathParser:
             difficulty=metadata_file.get("difficulty", 0),
             attempts=metadata_file.get("attempts", 0),
             tracked_attempts=self._get_tracked_attempts(general_file),
-            new_bests=general_file.get("newBests", []),
-            current_best=general_file.get("currentBest", 0),
+            new_bests= new_bests,
+            current_best=self._define_current_best(new_bests),
         )
 
+    def _define_current_best(self, new_bests: list) -> int:
+        '''Define the current best, receive the list of new_bests ascending ordered'''
+        if not new_bests:
+            return 0
+        return new_bests[-1]
+        
     def _get_level_id(self, canonical_id: str) -> str:
 
         """Get the level id using the canonical id and removing unecessary strings"""

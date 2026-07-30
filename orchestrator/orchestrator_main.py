@@ -9,8 +9,8 @@ def process_level(dt_path: Path, pt_path: Path, watchdog_state=True) -> None:
     '''Main program, orchestrate the entire process of pipeline'''
     
     dt_data = DeathParser().parse(dt_path)
-    #print("Death Parser")
-    #dt_data.display()
+    # print("Death Parser")
+    # dt_data.display()
     if dt_data:
         pt_data = PlaytimeParser().parse(pt_path)
         #print("Playtime Parser")
