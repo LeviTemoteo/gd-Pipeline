@@ -8,3 +8,5 @@ __pycache__/
 *.session.sql
 *.code
 *.code-workspace
+credentials.json
+teste.py

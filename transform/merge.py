@@ -63,13 +63,17 @@ class TransformLevel:
             return None
 
         with LevelRepository() as database:
-            possible_master_id = database.find_master_level_id(linked_list[0])
-            if possible_master_id:
-                master_master_id = database.find_master_level_id(possible_master_id)
-                if master_master_id is not None:
-                    linked_list.append(master_master_id)
-                elif possible_master_id is not None:
-                    linked_list.append(possible_master_id)
+            chain_id = database.find_master_level_id(linked_list[0])
+            master_level = database.find(chain_id)
+
+            try: # if the main level don't have a master id, will return None, this try prevent the error.
+                if master_level.master_level_id: # Check if the main level has conection with the linked group 
+                                                # for some reason, sometimes the main level doesn't have a master_level_id, but the other levels have conection with it
+                    linked_list.append(master_level.master_level_id)
+            except:
+                pass
+                    
+
 
         
         local = []

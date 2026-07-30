@@ -4,7 +4,7 @@ title Python requirements
 cd /d "%~dp0"
 
 echo updating pip install...
-python -m pip install --upgrade pip --quiet
+python -m pip install --upgrade pip
 
 echo installing requirements...
 pip install -r requirements.txt

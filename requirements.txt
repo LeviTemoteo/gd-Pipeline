@@ -1,1 +1,3 @@
 watchdog
+gspread
+google-auth
