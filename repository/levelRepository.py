@@ -336,4 +336,61 @@ class LevelRepository:
         '''
         self.database_cursor.execute(sql, (value, canonical_id))
         self.database.commit()
-  
+
+    def get_all_unlinked_level_sheets(self) -> list:
+        '''Will return a list of dict from every level without master_level_id, but this version is for google sheets'''
+        self.database.row_factory = sqlite3.Row
+        cursor = self.database.cursor()
+
+        sql = '''SELECT 
+            canonical_id,
+            level_name,
+            difficulty,
+            tracked_attempts,
+            current_best,
+            worst_fail,
+            playtime,
+            completed,
+            completion_date
+            FROM levels
+        WHERE master_level_id is NULL
+        '''
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+
+        self.database.row_factory = None
+        return [dict(row) for row in rows]
+        
+
+    def get_all_linked_level_aggregates_sheets(self):
+
+        self.database.row_factory = sqlite3.Row
+        cursor = self.database.cursor()
+
+        sql = '''SELECT 
+            master_level_d,
+            MAX(CASE WHEN level_id = master_level_id THEN level_name END) AS level_name,
+            MAX(CASE WHEN level_id = master_level_id THEN difficulty END) AS difficulty,
+
+            SUM(attempts) AS total_attempts,
+            SUM(track_attempts) AS total_tracked_attempts,
+            MAX(completed) AS completed,
+            MIN(CASE WHEN completed = 1 THEN completion_date END) AS first_completion_date,
+            MAX(current_best) AS current_best,
+            MAX(worst_fail) AS worst_fail,
+
+            SUM(playtime) - SUM(CASE WHEN canonical_id != master_level_id THEN playtime ELSE 0 END) AS aggregated_playtime,
+
+            GROUP CONCAT(canonical_id) AS all_canonical_ids
+
+            FROM levels
+            WHERE master_level_id IS NOT NULL
+            GROUP BY master_level_id;
+        '''
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+
+        self.database.row_factory = None
+        return [dict(row) for row in rows]
+
+    

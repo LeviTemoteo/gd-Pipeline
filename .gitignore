@@ -9,4 +9,4 @@ __pycache__/
 *.code
 *.code-workspace
 credentials.json
-gd-Pipeline\teste.py
+teste.py

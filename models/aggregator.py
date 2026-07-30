@@ -4,6 +4,7 @@ from datetime import date
 
 @dataclass
 class AggregatedLevel:
+    level_id: str
     level_name: str
     level_type: str
     difficulty: int
@@ -14,7 +15,6 @@ class AggregatedLevel:
     playtime: int
     current_best: int
     worst_fail: int
-    level_id: str
 
     def display(self):
         '''Display the entire class'''
