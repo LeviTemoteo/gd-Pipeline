@@ -53,10 +53,9 @@ class TransformLevel:
         '''Search the smallest id in the list, if the list is empty, return None. Also define the master id if a linkead already have one'''
 
         # Priority:
-        # 1. The level already has a master id
-        # 2. First local level
-        # 3. Online level with the smallest id
-        # 4. Editor level with the smallest id
+        # 1. Choose between First local level and level already has a master id in db
+        # 2. Choose between Online level with the smallest id and level already has a master id in db
+        # 3. Choose between Editor level with the smallest id and level already has a master id in db
 
         linked_list = list(original_list)
         
@@ -73,9 +72,8 @@ class TransformLevel:
                     linked_list.append(possible_master_id)
 
         
-
-        online = []
         local = []
+        online = []
         editor = []
         
         for level_id in linked_list:
