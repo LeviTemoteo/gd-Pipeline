@@ -1,17 +1,15 @@
-# Synchronization
+<img src="assets/ball_52.png" alt="Logo" width="130" align="left" />
 
-## Overview
+<h3>Synchronization</h3>
 
 Synchronization is the final stage of **gd-Pipeline**
 
-Transformation stage which every tracked level individually inside SQLite, but synchronization generates a consolidated dataset intended for visualization.
-
-SQLite always remains the source of truth, while Google Sheets acts as a presentation layer built on top of the aggregated data.
+Transformation stage which every tracked level individually inside SQLite, but synchronization generates a consolidated data intended for visualization.
 
 The synchronization pipeline performs two operations:
 
 - Aggregate linked levels into a single logical progression.
-- Export the aggregated dataset into a dedicated worksheet inside an existing Google Sheets spreadsheet.
+- Export the aggregated data into a dedicated worksheet inside an existing Google Sheets spreadsheet.
 
 ---
 
@@ -19,18 +17,18 @@ The synchronization pipeline performs two operations:
 
 ### Overview
 
-SQLite stores every tracked level independently. Synchronization reads every stored level and produces a new dataset where linked levels become a single logical record.
+SQLite stores every tracked level independently. Synchronization reads every stored level and produces a new data where linked levels become a single logical record.
 
 Notes:
 - Unlinked levels are exported without modification.
 
-- The aggregation process never modifies SQLite.
+- The aggregation process does not modifies SQLite.
 
 ---
 
 ## Unlinked Levels
 
-Levels without a `master_level_id` do not require aggregation, so synchronization simply copies their information into the exported dataset while discarding fields that are only meaningful inside SQLite.
+Levels without a `master_level_id` do not require aggregation, so synchronization simply send their information into the exported data while discarding fields that are only meaningful inside SQLite.
 
 The following fields are omitted:
 
@@ -40,6 +38,8 @@ The following fields are omitted:
 
 Every remaining field is exported directly.
 
+### Note
+There, we create a new field called `type`, it has the variant of the level, such as: `daily`, `gauntlet`, `online`, `editor`, `local`.
 ---
 
 ## Linked Levels
@@ -53,7 +53,7 @@ Each exported record follows the rules below.
 | level_id | `master_level_id` without variant suffixes (`-daily`, `-gauntlet`). Editor and Local IDs are preserved. |
 | level_name | Name of the level. |
 | level_type | Type of the level. (`daily`, `gauntlet`, `online`, `editor`, `local`)|
-| difficulty | Difficulty of the level (check **docs/data_dictionary** and difficulty field for more information) |
+| difficulty | Difficulty of the level (check **docs/data_dictionary** difficulty field for more information) |
 | completed | Every linked level shares the same value due to synchronization. |
 | completion_date | Earliest completion date among linked levels. |
 | attempts | Sum of every linked level. |
@@ -66,9 +66,9 @@ Each exported record follows the rules below.
 
 ## Representative Level
 
-Some fields cannot be aggregated mathematically. Instead, Synchronization chooses a **representative level**.
+Some fields cannot be aggregated mathematically. Instead, Synchronization chooses a **original level**.
 
-The representative level is defined as the level whose:
+The original level is defined as the level whose:
 
 ```text
 level_id == master_level_id
@@ -76,7 +76,7 @@ level_id == master_level_id
 
 This corresponds to the original level inside the linked group.
 
-The representative provides:
+The original provides:
 
 - level_name
 - difficulty
@@ -203,8 +203,7 @@ The export model represents the player's logical progression rather than individ
 
 Google Sheets is the visualization layer of **gd-Pipeline**.
 
-Synchronization exports the aggregated dataset into a dedicated worksheet that serves as the data source for the rest of the spreadsheet, allowing users to build custom dashboards, charts, statistics and formulas without modifying the synchronization process.
-The exported worksheet is intended to be the only worksheet managed by gd-Pipeline.
+Synchronization exports the aggregated data into a dedicated worksheet that serves as the data source for the rest of the spreadsheet, allowing users to build custom dashboards, statistics and formulas without modifying the synchronization process.
 
 ---
 
