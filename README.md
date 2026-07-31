@@ -1,8 +1,19 @@
-# gd-Pipeline 
+<!-- Badges do Projeto -->
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python" />
+  <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/Google%20Sheets%20API-34A853?style=for-the-badge&logo=googlesheets&logoColor=white" alt="Google Sheets API" />
+  <img src="https://img.shields.io/badge/Data%20Engineering-Event--Driven-orange?style=for-the-badge" alt="Data Engineering" />
+  <img src="https://img.shields.io/badge/Status-Conclu%C3%ADdo-brightgreen?style=for-the-badge" alt="Status" />
+</p>
 
-Near real-time Geometry Dash data pipeline. 
+<img src="docs/assets/cube_12(1).png" alt="Logo" width="100" align="left" />
 
-Automatically extracts gameplay statistics from multiple local trackers, transforms them into a relational model, stores them in SQLite and synchronizes an aggregated datas to Google Sheets. 
+<h3><big><big>gd-Pipeline<big></big></big></h3>
+
+Near-real-time Geometry Dash data pipeline.
+
+Automatically extracts gameplay statistics from multiple local trackers, transforms them into a relational model, stores them in SQLite, and synchronizes aggregated data to Google Sheets.
 
 --- 
 
