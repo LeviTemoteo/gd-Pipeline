@@ -1,6 +1,6 @@
-# Database
+<img src="assets/robot_44.png" alt="Logo" width="130" align="left" />
 
-## Overview
+<h3>Database</h3>
 
 The SQLite database stores the current state of every tracked Geometry Dash level variant. Data collected from Death Tracker and Playtime Tracker is transformed into a unified schema before being stored, allowing the pipeline to work with a single and consistent representation of each level. Google Sheets is synchronized from the SQLite database after linked-level aggregation, making SQLite the central storage layer of the application.
 
@@ -43,8 +43,8 @@ INTEGER attempts_synced
 
 The `levels` table stores the latest known state of every tracked level and each row represents a single Geometry Dash level (or one of its variants).
 
-| Column | Type | Description                                               |
-| --------------- | ------- | ------------------------------------------|
+| Column | Type | Description |
+| --------------- | ------- | -----|
 | canonical_id    | TEXT    | Primary key used internally by gd-Pipeline|
 | level_id        | TEXT    | Original Geometry Dash level ID|
 | master_level_id | TEXT    | Representative Geometry Dash level ID used for linked-level aggregation. NULL for standalone levels. |
@@ -124,7 +124,7 @@ For this reason, both `canonical_id` and `level_id` are stored as `TEXT` instead
 
 Playtime is stored as the total number of seconds spent on a level instead of a formatted duration.
 
-Although Geometry Dash players commonly express playtime in hours, storing the raw value preserves full precision and avoids rounding errors. Human-readable formats, such as hours or minutes, are generated only when displaying the data.
+Although Geometry Dash players commonly express playtime in hours, storing the raw value preserves full precision and avoids rounding errors.
 
 
 ### Linked Progression
@@ -135,6 +135,7 @@ The aggregated record is computed using the following rules:
 
 | Field | Aggregation |
 |--------|-------------|
+| Level Types | Extract from canonical-ids |
 | attempts | Sum |
 | tracked_attempts | Sum |
 | playtime | Maximum or Sum |
@@ -142,3 +143,6 @@ The aggregated record is computed using the following rules:
 | worst_fail | Maximum |
 | completed | Any completed level |
 | completion_date | Earliest completion date |
+
+#### Notes
+Playtime aggregation is especial, please check **docs/data_dictionary** and playtime field.

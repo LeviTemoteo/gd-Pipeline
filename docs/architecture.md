@@ -1,4 +1,4 @@
-<img src="assets/cube_50(1).png" alt="Logo" width="100" align="left" />
+<img src="assets/wave_17.png" alt="Logo" width="100" align="left" />
 
 <h3>Architecture</h3>
 gd-Pipeline follows an event-driven ETL architecture.
