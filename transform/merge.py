@@ -125,7 +125,11 @@ class TransformLevel:
             worst_fail = current_best
 
         elif len(new_bests) >= 2:
-            worst_fail = new_bests[-2]
+            for best in new_bests[::-1]:
+                if best < 100:
+                    worst_fail = best
+                    return worst_fail
+            return 0
 
         else:
             worst_fail = 0
