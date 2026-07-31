@@ -140,7 +140,8 @@ class LevelRepository:
                 self.update_worst_fail(level.worst_fail, level.canonical_id)
                 # When the level attempts_synced is different of 1, will receive 1 (if the level is completed will certainly receive att_sync = 0)
                 if level.attempts_synced != 1:
-                    self.update_attempts_by_canonical_id(level.canonical_id, level.attempts)
+                    if existing_level.attempts_synced != 1:
+                        self.update_attempts_by_canonical_id(level.canonical_id, level.attempts)
                     self.update_attempts_synced(level.canonical_id, 1)
                     level.attempts_synced = 1
                    # print(f"Usado o else (sem update) e estado depois de forçar 1: id {level.level_id} e attempts_synced: {level.attempts_synced}")

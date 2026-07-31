@@ -51,7 +51,7 @@ class TransformLevel:
             return existing_level.completion_date
 
         if current_best == 100:
-            print(f"Entrou no if do current best{current_best}")
+            #print(f"Entrou no if do current best{current_best}")
             return date.today()
         
         return None

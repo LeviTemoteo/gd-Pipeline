@@ -40,4 +40,4 @@ def export_to_google_sheets():
         rows.append(level.to_list())
     worksheet.clear()
     worksheet.update(rows)
-    print("Database Exported.")
+    print("Database Exported.", end="\n\n")
