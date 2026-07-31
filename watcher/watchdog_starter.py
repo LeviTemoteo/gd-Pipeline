@@ -6,11 +6,32 @@ from orchestrator.orchestrator_main import process_level
 from config.path_resolver import resolve_playtime_path
 from config.paths import deathTrackerPath
 from queue import Queue
-from threading import Thread
+from threading import Thread, Timer
+from sheets.export import export_to_google_sheets
 
 task_queue = Queue()
+export_timer: Timer | None = None
+
+def trigger_export():
+
+    global export_timer
+    try:
+        export_to_google_sheets()
+    except Exception as error:
+        print(f"Error to export, verify you connection... Details: {error}")
+
+    export_timer = None
+
+def _schedule_export(delay_seconds: float = 3.0):
+    global export_timer
+    if export_timer is not None:
+        export_timer.cancel()
+
+    export_timer = Timer(delay_seconds, trigger_export)
+    export_timer.start()
 
 def worker_consumer():
+    global export_timer
     last_processed = {}
 
     while True:
@@ -18,11 +39,18 @@ def worker_consumer():
         if dir_path is None:
             break
 
+        if export_timer is not None:
+            export_timer.cancel()
+            export_timer = None
+
         path_str = str(dir_path)
         now = time()
 
         if (now - last_processed.get(path_str, 0)) < 0.8:
             task_queue.task_done()
+
+            if task_queue.empty():
+                _schedule_export()
             continue
 
         last_processed[path_str] = now
@@ -30,6 +58,9 @@ def worker_consumer():
         # print("Fase aceita: ", dir_path)
         process_level(dt_path=dir_path, pt_path= resolve_playtime_path(dir_path), watchdog_state=True)
         task_queue.task_done()
+
+        if task_queue.empty():
+            _schedule_export()
 
        
 
@@ -53,7 +84,7 @@ class gdFileHandler(FileSystemEventHandler):
             backup_index = parts.index("backups")
             dir_path = Path(*parts[:backup_index])
         else:
-           dir_path = file_path.parent
+            dir_path = file_path.parent
 
         # print("Passou nos filtros: ", dir_path)
         task_queue.put(dir_path)

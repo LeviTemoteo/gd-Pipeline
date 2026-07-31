@@ -2,6 +2,7 @@ from config.path_resolver import resolve_playtime_path
 from config.paths import deathTrackerPath
 from orchestrator.orchestrator_main import process_level
 from bootstrap.initialize_db import initialize_database
+from sheets.export import export_to_google_sheets
 
 
 def initial_scan():
@@ -14,3 +15,4 @@ def initial_scan():
             
         pt_path = resolve_playtime_path(dt_path)
         process_level(dt_path, pt_path, watchdog_state=False)
+        export_to_google_sheets()
