@@ -19,7 +19,7 @@ class AggregatedLevel:
     def to_list(self) -> list:
         '''return a list for google sheets'''
 
-        formatted_date = self.completion_date.isoformat() if self.completion_date else ""
+        formatted_date = str(self.completion_date or "")
         
         return [self.level_id,
                 self.level_name,

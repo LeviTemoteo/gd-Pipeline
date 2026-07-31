@@ -15,4 +15,4 @@ def initial_scan():
             
         pt_path = resolve_playtime_path(dt_path)
         process_level(dt_path, pt_path, watchdog_state=False)
-        export_to_google_sheets()
+    export_to_google_sheets()

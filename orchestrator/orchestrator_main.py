@@ -3,14 +3,15 @@ from parsers.deathTrackerParser import DeathParser
 from parsers.playtimeTrackerParser import PlaytimeParser
 from transform.merge import TransformLevel
 from repository.levelRepository import LevelRepository
+#from sheets.aggregation import 
 
 
 def process_level(dt_path: Path, pt_path: Path, watchdog_state=True) -> None:
     '''Main program, orchestrate the entire process of pipeline'''
     
     dt_data = DeathParser().parse(dt_path)
-    # print("Death Parser")
-    # dt_data.display()
+    print("Death Parser")
+    dt_data.display()
     if dt_data:
         pt_data = PlaytimeParser().parse(pt_path)
         #print("Playtime Parser")
@@ -20,4 +21,7 @@ def process_level(dt_path: Path, pt_path: Path, watchdog_state=True) -> None:
             level.show()
 
             with LevelRepository() as data_base:
+                level.display()
                 data_base.save(level)
+
+            

@@ -86,12 +86,12 @@ class LevelRepository:
 
     def save(self, level: Level) -> None:
         '''Save a Level in DB, choosing among update, insert, update only master id and update attempts'''
+        if level.master_level_id is not None:
+            group_completed = self.get_group_completion(level.master_level_id)
 
-        group_completed, group_completion_date = self.get_group_completion(level.master_level_id)
-
-        if group_completed:
-            level.completed = True
-            level.completion_date = group_completion_date
+            if group_completed:
+                level.completed = True
+                level.attempts_synced = 0
 
         existing_level = self.find(level.canonical_id)
 
@@ -150,9 +150,9 @@ class LevelRepository:
         # Synchronization, if the level is completed and have a master level id, will send the completion = 1, completion_date from the level
         # And the attempts_synced = 0 for everyone else with the same master id.
         print("master_level_id: ", level.master_level_id)
-        if level.completed and level.master_level_id:
+        '''if level.completed and level.master_level_id:
            # print(f"Fase entrou no sync_linked_levels: id {level.level_id} e attempts_synced: {level.attempts_synced}")
-            self.sync_linked_levels(level.master_level_id, level.completion_date, level.attempts_synced)
+            self.sync_linked_levels(level.master_level_id, level.attempts_synced)'''
             
             
     def find(self, canonical_id: str) -> Level | None:
@@ -222,8 +222,8 @@ class LevelRepository:
         self.database_cursor.execute(sql, (master_level_id, canonical_id))
         self.database.commit()
 
-    def sync_linked_levels(self, master_level_id: str, completion_date: date, attempts_sync: int | None) -> None:
-        '''Syncronize every linked level with completed True, completion date and attempts_sync = 0'''
+    def sync_linked_levels(self, master_level_id: str, attempts_sync: int | None) -> None:
+        '''Syncronize every linked level with completed True, attempts_sync = 0'''
 
         if not master_level_id:
             return
@@ -234,26 +234,27 @@ class LevelRepository:
 
         self.database_cursor.execute(sql, (master_level_id,))
 
-        if not completion_date:
-            return
-
-        #print("Passou pelo completion_date")
-
-        sql = '''update levels
-        set completion_date = ?
-        where master_level_id = ? and completed = 1 '''
-
-        self.database_cursor.execute(sql, (completion_date, master_level_id))
-
         if attempts_sync is not None:
-            # print("Passou pelo attempts_sync")
+            print("Passou pelo attempts_sync")
             sql = '''update levels
             set attempts_synced = 0
             where master_level_id = ? and attempts_synced IS NULL'''
 
             self.database_cursor.execute(sql, (master_level_id,))
+        '''
+        if not completion_date:
+            return
+
+        print("Passou pelo completion_date")
+
+        sql = update levels 
+                set completion_date = ?
+        where master_level_id = ? and completed = 1 
+
+        self.database_cursor.execute(sql, (completion_date, master_level_id))
 
         self.database.commit()
+        '''
 
     def get_group_completion(self, master_level_id: str | None) -> tuple[bool, date | None]:
         ''' Get the completion status and completion Date from a master id'''
@@ -394,5 +395,4 @@ class LevelRepository:
 
         self.database.row_factory = None
         return [dict(row) for row in rows]
-
     

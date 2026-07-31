@@ -11,13 +11,14 @@ class TransformLevel:
         '''Main function that return a level object'''
 
         completion_state = self._define_completion_state(DT_data.current_best)
+        cBest = self._define_current_best(DT_data.current_best)
+        attempts_synced = self._define_attempts_synced(cBest, watchdog)
         
         if watchdog:
-            completion_date = self._define_completion_date(completion_state)
+            completion_date = self._define_completion_date(cBest, DT_data.canonical_id)
         else:
             completion_date = None
         
-        cBest = self._define_current_best(DT_data.current_best)
         linked_levels = DT_data.linked_levels.copy()
         linked_levels.append(DT_data.level_id)
 
@@ -34,15 +35,25 @@ class TransformLevel:
             playtime= PT_data.playtime,
             completed= completion_state,
             completion_date= completion_date, 
-            attempts_synced= self._define_attempts_synced(cBest,watchdog) 
+            attempts_synced= attempts_synced 
         )
         
         
 
-    def _define_completion_date(self, completion_state: bool) -> date | None:
+    def _define_completion_date(self, current_best: int, canonical_id: str) -> date | None:
         '''Get the date if completion state is True'''
-        if completion_state:
+        with LevelRepository() as database:
+            existing_level = database.find(canonical_id)
+
+        if existing_level and existing_level.completion_date:
+            if existing_level.completed == 0:
+                return None
+            return existing_level.completion_date
+
+        if current_best == 100:
+            print(f"Entrou no if do current best{current_best}")
             return date.today()
+        
         return None
 
     def _define_completion_state(self, current_best: int) -> bool:
