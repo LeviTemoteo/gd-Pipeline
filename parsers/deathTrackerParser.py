@@ -47,6 +47,11 @@ class DeathParser:
         
         
         new_bests = general_file.get("newBests", [])
+        general_file_current_best = general_file.get("currentBest", 0)
+
+        if general_file_current_best:
+            new_bests.append(general_file_current_best) # Current best was removed in a recent update, but wasn't removed in old files...
+
         return DeathTrackerData(
             canonical_id=canonical_id,
             level_id=self._get_level_id(canonical_id),

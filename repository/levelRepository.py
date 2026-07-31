@@ -137,6 +137,7 @@ class LevelRepository:
             else:
                 # print(f"Usado o else (sem update): id {level.level_id} e attempts_synced: {level.attempts_synced}")
                 self.update_master_level_id(level.master_level_id, level.canonical_id)
+                self.update_worst_fail(level.worst_fail, level.canonical_id)
                 # When the level attempts_synced is different of 1, will receive 1 (if the level is completed will certainly receive att_sync = 0)
                 if level.attempts_synced != 1:
                     self.update_attempts_by_canonical_id(level.canonical_id, level.attempts)
@@ -150,10 +151,16 @@ class LevelRepository:
         # Synchronization, if the level is completed and have a master level id, will send the completion = 1, completion_date from the level
         # And the attempts_synced = 0 for everyone else with the same master id.
         print("master_level_id: ", level.master_level_id)
-        '''if level.completed and level.master_level_id:
-           # print(f"Fase entrou no sync_linked_levels: id {level.level_id} e attempts_synced: {level.attempts_synced}")
-            self.sync_linked_levels(level.master_level_id, level.attempts_synced)'''
-            
+
+    def update_worst_fail(self, worst_fail: int, canonical_id: str) -> None:
+        '''If the player updates manually the runs in death tracker, this function will change the worst fail'''
+
+        sql = '''UPDATE levels
+        SET worst_fail = ?
+        where canonical_id = ? 
+        '''
+        self.database_cursor.execute(sql, (worst_fail, canonical_id))
+        self.database.commit()
             
     def find(self, canonical_id: str) -> Level | None:
         '''Find a level by its canonical id'''
@@ -222,57 +229,20 @@ class LevelRepository:
         self.database_cursor.execute(sql, (master_level_id, canonical_id))
         self.database.commit()
 
-    def sync_linked_levels(self, master_level_id: str, attempts_sync: int | None) -> None:
-        '''Syncronize every linked level with completed True, attempts_sync = 0'''
-
-        if not master_level_id:
-            return
-
-        sql = '''update levels
-        set completed = 1
-        where master_level_id = ? and completed = 0'''
-
-        self.database_cursor.execute(sql, (master_level_id,))
-
-        if attempts_sync is not None:
-            print("Passou pelo attempts_sync")
-            sql = '''update levels
-            set attempts_synced = 0
-            where master_level_id = ? and attempts_synced IS NULL'''
-
-            self.database_cursor.execute(sql, (master_level_id,))
-        '''
-        if not completion_date:
-            return
-
-        print("Passou pelo completion_date")
-
-        sql = update levels 
-                set completion_date = ?
-        where master_level_id = ? and completed = 1 
-
-        self.database_cursor.execute(sql, (completion_date, master_level_id))
-
-        self.database.commit()
-        '''
-
-    def get_group_completion(self, master_level_id: str | None) -> tuple[bool, date | None]:
-        ''' Get the completion status and completion Date from a master id'''
+    def get_group_completion(self, master_level_id: str | None) -> bool:
+        ''' Get the completion status from a master id'''
 
         if not master_level_id:
             return False, None
 
-        sql = '''select completion_date from levels
+        sql = '''select completed from levels
         where master_level_id = ? and completed = 1
-        order by completion_date asc
         limit 1'''
 
         self.database_cursor.execute(sql, (master_level_id,))
         data = self.database_cursor.fetchone()
 
-        if data:
-            return True, data[0]
-        return False, None
+        return bool(data)
 
     def find_master_level_id(self, canonical_id: str) -> str | None:
         '''Return the master_level_id by canonical_id'''
