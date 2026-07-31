@@ -123,9 +123,9 @@ gd-Pipeline preserves this value without modification.
 | 3 | Hard |
 | 4 | Harder |
 | 5 | Insane |
-| 6 | Easy Demon |
-| 7 | Medium Demon |
-| 8 | Hard Demon |
+| 7 | Easy Demon |
+| 8 | Medium Demon |
+| 6 | Hard Demon |
 | 9 | Insane Demon |
 | 10 | Extreme Demon |
 
