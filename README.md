@@ -16,6 +16,21 @@ The result is a live sheets capable of tracking player progression in **near rea
 
 --- 
 
+## Live Pipeline
+
+The GIF below shows the complete process:
+
+- Watchdog detects the local file changes
+- SQLite is updated
+- The aggregated data is exported
+- Google Sheets is synchronized automatically
+
+<p align="center">
+  <img src="docs/assets/process.gif" alt="gd-Pipeline demonstration" width="1000"/>
+</p>
+
+--- 
+
 ## Motivation 
 
 Many well-known Geometry Dash players (such as the streamer/youtuber Zeronium) maintain public spreadsheets to track their progress on Extreme Demon levels. However, these spreadsheets are updated manually, so viewers only see new progress after the player edits them. I thought it would be cool to automate this entire process for every level, not just Extreme Demons. That's how **gd-Pipeline** was born. 
@@ -118,11 +133,11 @@ Detailed documentation is available inside the docs/ folder.
 --- 
 
 ## Technologies 
-- Python - SQLite
+- Python
+- SQLite
 - Google Sheets API
 - Watchdog
 - Git
--
 --- 
 
 ## Live Sheets 
