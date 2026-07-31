@@ -85,6 +85,34 @@ This guarantees that exported metadata always represents the original level inst
 
 ---
 
+## Completion Synchronization
+
+Completion status is synchronized across every linked level.
+
+Whenever one level in a linked progression is completed, every linked level is marked as completed, but unlike the `completion`, the `completion_date` is **not synchronized** inside SQLite.
+
+This is an intentional design decision.
+
+### Why?
+
+Geometry Dash does not expose the original completion date during initial scans.
+
+As a result:
+
+- Watchdog events can provide an exact completion date.
+- Full scans cannot.
+
+Synchronizing completion dates would overwrite valid historical information with unknown values, causing inconsistent progression records.
+
+For this reason:
+
+- `completed` is synchronized.
+- `completion_date` always remains local to each tracked level.
+
+During aggregation, synchronization selects the earliest available completion date among the linked levels for visualization purposes.
+
+---
+
 ## Level Type
 
 Unlike `level_name` and `difficulty`, the `level_type` field is not copied from the representative level. Instead, Synchronization analyzes every linked level and builds a consolidated type describing every progression path present in the linked group.

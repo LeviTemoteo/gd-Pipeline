@@ -9,4 +9,3 @@ __pycache__/
 *.code
 *.code-workspace
 credentials.json
-teste.py
